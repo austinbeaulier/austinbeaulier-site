@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projects — Austin Beaulier | Texture Forager, Pocket Runner, ScanSift</title>
+<meta name="description" content="Apps and tools built by Austin Beaulier: Texture Forager (photo to PBR texture, iOS & Android), Pocket Runner (iPhone motion controller for PC games), and ScanSift (free video-to-photogrammetry frames for Windows).">
+<link rel="canonical" href="https://austinbeaulier.com/projects/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Austin Beaulier">
+<meta property="og:title" content="Projects — Austin Beaulier">
+<meta property="og:description" content="Texture Forager, Pocket Runner, and ScanSift — apps and tools for 3D capture and play.">
+<meta property="og:url" content="https://austinbeaulier.com/projects/">
+<meta property="og:image" content="https://austinbeaulier.com/images/austin-beaulier-vfx-supervisor.jpg">
+<meta property="og:image:alt" content="Austin Beaulier, VFX supervisor and 3D artist, at the Asian World Film Festival">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Projects — Austin Beaulier">
+<meta name="twitter:description" content="Texture Forager, Pocket Runner, and ScanSift — apps and tools for 3D capture and play.">
+<meta name="twitter:image" content="https://austinbeaulier.com/images/austin-beaulier-vfx-supervisor.jpg">
+
+<meta name="theme-color" content="#b2b2b2">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="2" y="2" width="60" height="60" rx="6" fill="%23ffffff" stroke="%23000000" stroke-width="4"/><text x="32" y="43" font-family="Courier New,monospace" font-size="26" font-weight="700" fill="%23000000" text-anchor="middle">AB</text></svg>'>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Projects by Austin Beaulier",
+  "url": "https://austinbeaulier.com/projects/",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "item": {"@type": "SoftwareApplication", "name": "Texture Forager", "applicationCategory": "DesignApplication", "operatingSystem": "iOS, Android", "url": "https://www.textureforager.com/", "author": {"@type": "Person", "name": "Austin Beaulier", "url": "https://austinbeaulier.com"}}},
+    {"@type": "ListItem", "position": 2, "item": {"@type": "SoftwareApplication", "name": "Pocket Runner for PC", "applicationCategory": "GameApplication", "operatingSystem": "iOS, Windows", "url": "https://apps.apple.com/us/app/pocket-runner-for-pc/id6761451104", "author": {"@type": "Person", "name": "Austin Beaulier", "url": "https://austinbeaulier.com"}}},
+    {"@type": "ListItem", "position": 3, "item": {"@type": "SoftwareApplication", "name": "ScanSift", "applicationCategory": "MultimediaApplication", "operatingSystem": "Windows", "url": "https://github.com/austinbeaulier/Scan-Sift", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "author": {"@type": "Person", "name": "Austin Beaulier", "url": "https://austinbeaulier.com"}}}
+  ]
+}
+</script>
+
+<style>
+  :root{
+    --paper:#ffffff; --ink:#000000; --muted:#555555;
+    --link:#1d1dad; --shadow:2.5px 2.5px 0 rgba(0,0,0,.9);
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  [hidden]{display:none!important}
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+  body{
+    /* Classic Mac desktop: 50% gray dither */
+    background:conic-gradient(#aeaeae 25%, #b9b9b9 0 50%, #aeaeae 0 75%, #b9b9b9 0);
+    background-size:4px 4px;
+    color:var(--ink);
+    font-family:Inter, Geneva, Verdana, -apple-system, sans-serif;
+    font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  .pixel{font-family:Silkscreen, "Courier New", monospace}
+  a{color:var(--ink); text-decoration:none}
+  img{display:block; max-width:100%}
+  .px{display:block; fill:var(--ink); flex:none}
+
+  /* ── Menu bar ─────────────────────────── */
+  nav{position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:1.5px solid var(--ink)}
+  .nav-in{display:flex; align-items:center; height:28px; gap:2px; max-width:1120px; margin:0 auto; padding:0 16px}
+  .apple{display:inline-flex; align-items:center; padding:0 10px 0 2px}
+  .menu{font-size:13px; font-weight:600; padding:3px 9px}
+  .menu.name{font-family:Silkscreen, monospace; font-size:10px; font-weight:700}
+  .menu.here{background:var(--ink); color:var(--paper)}
+  a.menu:hover{background:var(--ink); color:var(--paper)}
+  .clock{margin-left:auto; font-size:9px; letter-spacing:.02em}
+  @media (max-width:400px){ .menu{padding:3px 6px} .clock{display:none} }
+
+  /* ── Page column (phone-first) ────────── */
+  .col{max-width:500px; margin:0 auto; padding:28px 16px 40px}
+
+  /* ── Windows ──────────────────────────── */
+  .win{background:var(--paper); border:1.5px solid var(--ink); box-shadow:var(--shadow)}
+  .win + .win{margin-top:20px}
+  .bar{
+    position:relative; height:23px; border-bottom:1.5px solid var(--ink);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .bar::before{ /* pinstripes */
+    content:""; position:absolute; left:6px; right:6px; top:5px; bottom:5px;
+    background:repeating-linear-gradient(to bottom, var(--ink) 0 1px, transparent 1px 3px);
+  }
+  .bar .t{position:relative; z-index:1; background:var(--paper); padding:0 8px; font-family:Silkscreen, monospace; font-size:10px; white-space:nowrap}
+  .bar .cb{
+    position:absolute; z-index:1; left:8px; top:50%; transform:translateY(-50%);
+    width:11px; height:11px; background:var(--paper); border:1.5px solid var(--ink); box-shadow:0 0 0 3px var(--paper);
+  }
+  .bar .zb{ /* zoom box */
+    position:absolute; z-index:1; right:8px; top:50%; transform:translateY(-50%);
+    width:11px; height:11px; background:var(--paper); border:1.5px solid var(--ink); box-shadow:0 0 0 3px var(--paper);
+  }
+  .bar .zb::after{content:""; position:absolute; left:0; top:0; width:4px; height:4px; border-right:1.5px solid var(--ink); border-bottom:1.5px solid var(--ink)}
+  /* Finder info strip under the title bar */
+  .info{display:flex; justify-content:space-between; gap:12px; padding:5px 12px; border-bottom:1.5px solid var(--ink); font-size:11px; color:#222}
+
+  /* ── Level 0: who ─────────────────────── */
+  .me{display:flex; align-items:center; gap:14px; padding:16px}
+  .me img{width:64px; height:64px; object-fit:cover; border:1.5px solid var(--ink); flex:none}
+  .me h1{font-family:Silkscreen, monospace; font-size:21px; line-height:1.1; font-weight:700}
+  .me p{font-size:13px; color:var(--muted); margin-top:5px}
+
+  /* ── Level 1–3: projects ──────────────── */
+  .proj{padding:18px 16px 20px}
+  .proj + .proj{border-top:1.5px solid var(--ink)}
+  .head{display:flex; align-items:center; gap:14px}
+  .icon{width:60px; height:60px; border:1.5px solid var(--ink); display:grid; place-items:center; flex:none; background:var(--paper)}
+  .proj h2{font-size:22px; font-weight:700; letter-spacing:-.015em; line-height:1.15}   /* level 1 */
+  .meta{font-family:Silkscreen, monospace; font-size:10px; color:var(--muted); margin-top:4px; letter-spacing:.02em}
+  .what{font-size:15px; color:#222; margin-top:12px}                                    /* level 2 */
+  .actions{display:flex; gap:10px; margin-top:14px}                                      /* level 3 */
+  .btn{
+    flex:1; display:flex; align-items:center; justify-content:center; text-align:center;
+    min-height:44px; padding:8px 12px; background:var(--paper); color:var(--ink);
+    border:1.5px solid var(--ink); border-radius:8px; font-weight:600; font-size:14.5px;
+  }
+  .btn:hover, .btn:active{background:var(--ink); color:var(--paper)}
+  /* System 7 "default button": the thick double ring marks the one to press */
+  .btn.default{box-shadow:0 0 0 2px var(--paper), 0 0 0 4px var(--ink); margin:2px}
+  .more{display:block; margin-top:12px; font-size:13px; font-weight:600; color:var(--link); text-decoration:underline}
+  .more:hover{color:var(--ink)}
+  .note{margin-top:12px; font-size:12px; color:var(--muted); display:flex; gap:7px; align-items:flex-start}
+  .note b{color:var(--ink)}
+  .note .i{flex:none; width:15px; height:15px; border:1.5px solid var(--ink); border-radius:50%; font:700 10px/12px Georgia, serif; text-align:center; color:var(--ink); margin-top:1px}
+
+  /* ── Secondary links ──────────────────── */
+  .rows{list-style:none}
+  .rows li + li{border-top:1px dotted #888}
+  .rows a{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; font-size:14px}
+  .rows a span{color:var(--muted); font-size:12.5px}
+  .rows a:hover{background:var(--ink); color:var(--paper)}
+  .rows a:hover span{color:var(--paper)}
+
+  /* ── Footer: socials ──────────────────── */
+  footer{margin-top:22px; text-align:center; font-size:12.5px; color:#2e2e2e}
+  footer a{color:#2e2e2e; text-decoration:underline; padding:4px}
+  footer a:hover{color:var(--ink)}
+  footer p + p{margin-top:8px}
+
+  /* ── Desktop icons (wide screens only) ── */
+  .desk-icon{display:none}
+  @media (min-width:900px){
+    .desk-icon{position:fixed; right:28px; width:84px; display:flex; flex-direction:column; align-items:center; gap:4px; font-size:11px; text-align:center}
+    .desk-icon .lbl{background:var(--paper); padding:0 4px; line-height:15px}
+    .desk-icon.hd{top:52px}
+    .desk-icon.trash{bottom:28px}
+    a.desk-icon:hover .lbl{background:var(--ink); color:var(--paper)}
+    a.desk-icon:hover .px{fill:#333}
+    .col{padding-top:48px}
+  }
+
+  :focus-visible{outline:2px dotted var(--ink); outline-offset:2px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <span class="apple" aria-hidden="true"><svg width="13" height="15" viewBox="0 0 13 15"><path d="M10.8 7.9c0-1.9 1.6-2.8 1.6-2.8S11.5 3.6 9.6 3.6c-1.1 0-2 .6-2.5.6-.6 0-1.4-.6-2.4-.6C2.8 3.6 1 5.2 1 8.1c0 2.9 2.1 6.3 3.7 6.3.6 0 1.5-.6 2.4-.6.9 0 1.6.6 2.4.6 1.7 0 3.2-3.2 3.2-3.2s-1.9-.9-1.9-3.3zM8.9 2.4C9.6 1.6 10 .5 9.9 0 9 .1 8.1.6 7.5 1.4 6.9 2.1 6.5 3.2 6.6 3.7c1 0 1.7-.5 2.3-1.3z" fill="#000"/></svg></span>
+    <a class="menu name" href="../">Austin Beaulier</a>
+    <span class="menu here" aria-current="page">Projects</span>
+    <a class="menu" href="mailto:austinbeaulier@gmail.com">Email</a>
+    <span class="clock pixel" id="menu-clock"></span>
+  </div>
+</nav>
+
+<!-- Desktop furniture (decorative, wide screens only) -->
+<a class="desk-icon hd" href="../"><svg class="px" width="48" height="48" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 2h1v1h-1zM1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM9 2h1v1h-1zM10 2h1v1h-1zM11 2h1v1h-1zM12 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM0 3h1v1h-1zM15 3h1v1h-1zM0 4h1v1h-1zM15 4h1v1h-1zM0 5h1v1h-1zM15 5h1v1h-1zM0 6h1v1h-1zM15 6h1v1h-1zM0 7h1v1h-1zM15 7h1v1h-1zM0 8h1v1h-1zM15 8h1v1h-1zM0 9h1v1h-1zM2 9h1v1h-1zM3 9h1v1h-1zM4 9h1v1h-1zM15 9h1v1h-1zM0 10h1v1h-1zM15 10h1v1h-1zM0 11h1v1h-1zM1 11h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM5 11h1v1h-1zM6 11h1v1h-1zM7 11h1v1h-1zM8 11h1v1h-1zM9 11h1v1h-1zM10 11h1v1h-1zM11 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1z"/></svg><span class="lbl">Portfolio</span></a>
+<div class="desk-icon trash" aria-hidden="true"><svg class="px" width="48" height="48" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path d="M6 0h1v1h-1zM7 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM5 1h1v1h-1zM10 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM9 2h1v1h-1zM10 2h1v1h-1zM11 2h1v1h-1zM12 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM0 3h1v1h-1zM15 3h1v1h-1zM0 4h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM1 5h1v1h-1zM14 5h1v1h-1zM1 6h1v1h-1zM4 6h1v1h-1zM7 6h1v1h-1zM10 6h1v1h-1zM14 6h1v1h-1zM1 7h1v1h-1zM4 7h1v1h-1zM7 7h1v1h-1zM10 7h1v1h-1zM14 7h1v1h-1zM1 8h1v1h-1zM4 8h1v1h-1zM7 8h1v1h-1zM10 8h1v1h-1zM14 8h1v1h-1zM1 9h1v1h-1zM4 9h1v1h-1zM7 9h1v1h-1zM10 9h1v1h-1zM14 9h1v1h-1zM1 10h1v1h-1zM4 10h1v1h-1zM7 10h1v1h-1zM10 10h1v1h-1zM14 10h1v1h-1zM1 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM10 11h1v1h-1zM14 11h1v1h-1zM1 12h1v1h-1zM4 12h1v1h-1zM7 12h1v1h-1zM10 12h1v1h-1zM14 12h1v1h-1zM1 13h1v1h-1zM14 13h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM12 14h1v1h-1zM13 14h1v1h-1z"/></svg><span class="lbl">Trash</span></div>
+
+<main class="col">
+
+  <!-- Who -->
+  <section class="win">
+    <div class="bar"><span class="cb"></span><span class="t">About This Mac</span></div>
+    <div class="me">
+      <img src="../images/austin-beaulier-vfx-supervisor.jpg" alt="Austin Beaulier" width="64" height="64">
+      <div>
+        <h1>Austin Beaulier</h1>
+        <p>VFX artist (Mandalorian, Nope, Black Adam). I build apps that turn the real world into 3D.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects: the main event -->
+  <section class="win" aria-labelledby="projects-title">
+    <div class="bar"><span class="cb"></span><span class="t" id="projects-title">Projects</span><span class="zb"></span></div>
+    <div class="info"><span>3 items</span><span>iPhone · Android · Windows</span></div>
+
+    <article class="proj" id="texture-forager">
+      <div class="head">
+        <div class="icon"><svg class="px" width="48" height="48" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM7 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM12 0h1v1h-1zM13 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM0 1h1v1h-1zM5 1h1v1h-1zM10 1h1v1h-1zM15 1h1v1h-1zM0 2h1v1h-1zM5 2h1v1h-1zM10 2h1v1h-1zM15 2h1v1h-1zM0 3h1v1h-1zM5 3h1v1h-1zM10 3h1v1h-1zM15 3h1v1h-1zM0 4h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM0 5h1v1h-1zM3 5h1v1h-1zM8 5h1v1h-1zM13 5h1v1h-1zM15 5h1v1h-1zM0 6h1v1h-1zM3 6h1v1h-1zM8 6h1v1h-1zM13 6h1v1h-1zM15 6h1v1h-1zM0 7h1v1h-1zM3 7h1v1h-1zM8 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM0 8h1v1h-1zM1 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM11 8h1v1h-1zM12 8h1v1h-1zM13 8h1v1h-1zM14 8h1v1h-1zM15 8h1v1h-1zM0 9h1v1h-1zM5 9h1v1h-1zM10 9h1v1h-1zM15 9h1v1h-1zM0 10h1v1h-1zM5 10h1v1h-1zM10 10h1v1h-1zM15 10h1v1h-1zM0 11h1v1h-1zM5 11h1v1h-1zM10 11h1v1h-1zM15 11h1v1h-1zM0 12h1v1h-1zM1 12h1v1h-1zM2 12h1v1h-1zM3 12h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM8 12h1v1h-1zM9 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM15 12h1v1h-1zM0 13h1v1h-1zM3 13h1v1h-1zM8 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM0 14h1v1h-1zM3 14h1v1h-1zM8 14h1v1h-1zM13 14h1v1h-1zM15 14h1v1h-1zM0 15h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM4 15h1v1h-1zM5 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM10 15h1v1h-1zM11 15h1v1h-1zM12 15h1v1h-1zM13 15h1v1h-1zM14 15h1v1h-1zM15 15h1v1h-1z"/></svg></div>
+        <div>
+          <h2>Texture Forager</h2>
+          <p class="meta">iPhone · Android · $5.99</p>
+        </div>
+      </div>
+      <p class="what">Snap a photo of any surface (wood, rust, stone) and get a full PBR texture set for your 3D work.</p>
+      <div class="actions">
+        <a class="btn default" id="tf-ios" href="https://apps.apple.com/us/app/texture-forager/id6759348882">App Store</a>
+        <a class="btn" id="tf-android" href="https://play.google.com/store/apps/details?id=com.austin.textureforager">Google Play</a>
+      </div>
+      <a class="more" href="https://www.textureforager.com/">Community library at textureforager.com →</a>
+    </article>
+
+    <article class="proj" id="pocket-runner">
+      <div class="head">
+        <div class="icon"><svg class="px" width="48" height="48" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path d="M2 1h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM6 1h1v1h-1zM7 1h1v1h-1zM8 1h1v1h-1zM1 2h1v1h-1zM9 2h1v1h-1zM1 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM5 3h1v1h-1zM6 3h1v1h-1zM7 3h1v1h-1zM9 3h1v1h-1zM1 4h1v1h-1zM3 4h1v1h-1zM7 4h1v1h-1zM9 4h1v1h-1zM13 4h1v1h-1zM1 5h1v1h-1zM3 5h1v1h-1zM7 5h1v1h-1zM9 5h1v1h-1zM11 5h1v1h-1zM14 5h1v1h-1zM1 6h1v1h-1zM3 6h1v1h-1zM7 6h1v1h-1zM9 6h1v1h-1zM12 6h1v1h-1zM15 6h1v1h-1zM1 7h1v1h-1zM3 7h1v1h-1zM7 7h1v1h-1zM9 7h1v1h-1zM12 7h1v1h-1zM15 7h1v1h-1zM1 8h1v1h-1zM3 8h1v1h-1zM7 8h1v1h-1zM9 8h1v1h-1zM12 8h1v1h-1zM15 8h1v1h-1zM1 9h1v1h-1zM3 9h1v1h-1zM7 9h1v1h-1zM9 9h1v1h-1zM11 9h1v1h-1zM14 9h1v1h-1zM1 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM9 10h1v1h-1zM13 10h1v1h-1zM1 11h1v1h-1zM9 11h1v1h-1zM1 12h1v1h-1zM5 12h1v1h-1zM9 12h1v1h-1zM1 13h1v1h-1zM9 13h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1z"/></svg></div>
+        <div>
+          <h2>Pocket Runner</h2>
+          <p class="meta">iPhone + Windows PC · $2.99</p>
+        </div>
+      </div>
+      <p class="what">Put your iPhone in your pocket and walk or jog to move in PC games. Your phone becomes the controller.</p>
+      <div class="actions">
+        <a class="btn default" href="https://apps.apple.com/us/app/pocket-runner-for-pc/id6761451104">Get it on the App Store</a>
+      </div>
+      <p class="note"><span class="i">i</span><span>Pairs with a <b>free Windows companion app</b> on your PC.</span></p>
+    </article>
+
+    <article class="proj" id="scansift">
+      <div class="head">
+        <div class="icon"><svg class="px" width="48" height="48" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM7 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM12 0h1v1h-1zM13 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM0 1h1v1h-1zM2 1h1v1h-1zM13 1h1v1h-1zM15 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1zM2 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM13 3h1v1h-1zM15 3h1v1h-1zM0 4h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM0 5h1v1h-1zM2 5h1v1h-1zM11 5h1v1h-1zM13 5h1v1h-1zM15 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM13 6h1v1h-1zM14 6h1v1h-1zM15 6h1v1h-1zM0 7h1v1h-1zM2 7h1v1h-1zM9 7h1v1h-1zM10 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM0 8h1v1h-1zM1 8h1v1h-1zM2 8h1v1h-1zM4 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM13 8h1v1h-1zM14 8h1v1h-1zM15 8h1v1h-1zM0 9h1v1h-1zM2 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM13 9h1v1h-1zM15 9h1v1h-1zM0 10h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM0 11h1v1h-1zM2 11h1v1h-1zM6 11h1v1h-1zM13 11h1v1h-1zM15 11h1v1h-1zM0 12h1v1h-1zM1 12h1v1h-1zM2 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM15 12h1v1h-1zM0 13h1v1h-1zM2 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM0 14h1v1h-1zM1 14h1v1h-1zM2 14h1v1h-1zM13 14h1v1h-1zM14 14h1v1h-1zM15 14h1v1h-1zM0 15h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM4 15h1v1h-1zM5 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM10 15h1v1h-1zM11 15h1v1h-1zM12 15h1v1h-1zM13 15h1v1h-1zM14 15h1v1h-1zM15 15h1v1h-1z"/></svg></div>
+        <div>
+          <h2>ScanSift</h2>
+          <p class="meta">Windows · Free</p>
+        </div>
+      </div>
+      <p class="what">Drop in a phone video and get only the sharp frames, ready for photogrammetry or Gaussian splats.</p>
+      <div class="actions">
+        <a class="btn default" href="https://github.com/austinbeaulier/Scan-Sift/releases/latest">Download for Windows</a>
+      </div>
+      <a class="more" href="https://github.com/austinbeaulier/Scan-Sift">Source code on GitHub →</a>
+      <p class="note" id="ss-phone-note" hidden><span class="i">i</span><span>On your phone? <b>ScanSift runs on a PC.</b> Save this page and open it on your computer.</span></p>
+    </article>
+  </section>
+
+  <!-- Everything else, one level down -->
+  <section class="win">
+    <div class="bar"><span class="cb"></span><span class="t">Also by Austin</span></div>
+    <ul class="rows">
+      <li><a href="https://www.drivemetorap.com/">Drive Me to Rap <span>Mocap feature film →</span></a></li>
+      <li><a href="https://sketchfab.com/Austin.Beaulier">3D scans <span>Sketchfab →</span></a></li>
+      <li><a href="https://www.youtube.com/@AustinBeaulier">The Odyssey in UE5 <span>YouTube →</span></a></li>
+      <li><a href="../">Portfolio &amp; film credits <span>austinbeaulier.com →</span></a></li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>
+      <a href="https://www.instagram.com/austinbeaulier/">Instagram</a> ·
+      <a href="https://www.tiktok.com/@austinbeaulier">TikTok</a> ·
+      <a href="https://www.youtube.com/@AustinBeaulier">YouTube</a> ·
+      <a href="mailto:austinbeaulier@gmail.com">Email</a>
+    </p>
+    <p>© 2026 Austin Beaulier · Los Angeles</p>
+  </footer>
+
+</main>
+
+<script>
+  // Put the right store first: Android visitors get Google Play as the default button.
+  (function () {
+    var ua = navigator.userAgent;
+    var isAndroid = /Android/i.test(ua);
+    var isPhone = isAndroid || /iPhone|iPad|iPod/i.test(ua);
+    if (isAndroid) {
+      var ios = document.getElementById('tf-ios'), and = document.getElementById('tf-android');
+      ios.classList.remove('default'); and.classList.add('default');
+      and.parentNode.insertBefore(and, ios);
+    }
+    if (isPhone) document.getElementById('ss-phone-note').hidden = false;
+  })();
+
+  // Menu bar clock, System 7 style.
+  (function () {
+    var el = document.getElementById('menu-clock');
+    if (!el) return;
+    function tick() {
+      var d = new Date();
+      var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      var h = d.getHours(), m = d.getMinutes();
+      var ap = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      el.textContent = days[d.getDay()] + ' ' + h + ':' + (m < 10 ? '0' : '') + m + ' ' + ap;
+    }
+    tick();
+    setInterval(tick, 30000);
+  })();
+</script>
+
+</body>
+</html>
