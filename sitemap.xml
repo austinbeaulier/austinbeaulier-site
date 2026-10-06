@@ -3,13 +3,20 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://austinbeaulier.com/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-05</lastmod>
     <image:image>
       <image:loc>https://austinbeaulier.com/images/austin-beaulier-vfx-supervisor.jpg</image:loc>
     </image:image>
   </url>
   <url>
     <loc>https://austinbeaulier.com/projects/</loc>
-    <lastmod>2026-10-01</lastmod>
+    <lastmod>2026-10-05</lastmod>
+  </url>
+  <url>
+    <loc>https://austinbeaulier.com/gridfinity-config/</loc>
+    <lastmod>2026-10-05</lastmod>
+    <image:image>
+      <image:loc>https://austinbeaulier.com/gridfinity-config/preview.jpg</image:loc>
+    </image:image>
   </url>
 </urlset>
