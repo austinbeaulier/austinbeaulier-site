@@ -26,4 +26,11 @@
       <image:loc>https://austinbeaulier.com/dice/preview.jpg</image:loc>
     </image:image>
   </url>
+  <url>
+    <loc>https://austinbeaulier.com/roadstergame/</loc>
+    <lastmod>2026-10-16</lastmod>
+    <image:image>
+      <image:loc>https://austinbeaulier.com/roadstergame/preview.jpg</image:loc>
+    </image:image>
+  </url>
 </urlset>
