@@ -325,6 +325,18 @@
       '  ############  ',
       '                ', '                ',
     ],
+    car: [
+      '                ', '                ', '                ', '                ',
+      '     ###        ',
+      '    #..#        ',
+      '  ###...######  ',
+      ' #............# ',
+      '#..............#',
+      '#..###....###..#',
+      '####.######.####',
+      '   ###    ###   ',
+      '                ', '                ', '                ', '                ',
+    ],
     // The next five match the icons on the Projects page.
     tf: [
       '################', '#    #    #    #', '#    #    #    #', '#    #    #    #', '################',
@@ -1182,7 +1194,7 @@
 
   /* ── Startup, Restart, Shut Down ──────────────────── */
   const bootEl = $('#boot');
-  const PARADE = ['ext', 'tf', 'pr', 'ss', 'grid', 'dice', 'globe', 'cpanel'];
+  const PARADE = ['ext', 'tf', 'pr', 'ss', 'grid', 'dice', 'car', 'globe', 'cpanel'];
 
   // Happy Mac, then the welcome box while extension icons march across the bottom.
   // Any click or key skips it.
