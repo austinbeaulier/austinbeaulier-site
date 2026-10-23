@@ -38,6 +38,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://media.sketchfab.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/desktop.css">
 
 <!-- Structured data: tells Google exactly which Austin Beaulier this is, with the photo -->
 <script type="application/ld+json">
@@ -79,343 +80,437 @@
 }
 </script>
 
-<style>
-  :root{
-    --desk:#b4b4b4; --paper:#ffffff; --ink:#000000; --muted:#555555;
-    --link:#1d1dad; --shadow:2.5px 2.5px 0 rgba(0,0,0,.9);
-  }
-  *{box-sizing:border-box; margin:0; padding:0}
-  html{scroll-behavior:smooth}
-  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} *{transition:none!important} }
-  body{
-    /* Classic Mac desktop: 50% gray dither */
-    background:conic-gradient(#aeaeae 25%, #b9b9b9 0 50%, #aeaeae 0 75%, #b9b9b9 0);
-    background-size:4px 4px;
-    color:var(--ink);
-    font-family:Inter, Geneva, Verdana, -apple-system, sans-serif;
-    font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
-  }
-  .pixel{font-family:Silkscreen, "Courier New", monospace}
-  a{color:var(--ink); text-decoration:none}
-  img{max-width:100%; display:block}
-  .wrap{max-width:1120px; margin:0 auto; padding:0 20px}
-
-  /* ── Menu bar ─────────────────────────── */
-  nav{position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:1.5px solid var(--ink)}
-  .nav-in{display:flex; align-items:center; height:28px; gap:2px}
-  .apple{display:inline-flex; align-items:center; padding:0 10px 0 2px}
-  .menu{font-size:13px; font-weight:600; padding:3px 9px; border-radius:0}
-  .menu.name{font-weight:700}
-  a.menu:hover{background:var(--ink); color:var(--paper)}
-  .clock{margin-left:auto; font-size:9px; padding-right:2px; letter-spacing:.02em}
-  @media (max-width:560px){ .menu{padding:3px 6px; font-size:12px} .clock{display:none} }
-
-  /* ── Hero ─────────────────────────────── */
-  .hero{padding-top:72px; padding-bottom:48px}
-  .eyebrow{font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:#3c3c3c; margin-bottom:16px}
-  .hero h1{font-size:clamp(30px, 5.6vw, 62px); font-weight:700; line-height:1.05; letter-spacing:-.01em}
-  .pitch{margin-top:16px; font-size:clamp(15px, 2vw, 18px); color:#333; max-width:46ch}
-  .cta-row{margin-top:28px; display:flex; align-items:center; gap:18px; flex-wrap:wrap}
-  .btn-mac{
-    display:inline-block; background:var(--paper); color:var(--ink);
-    border:1.5px solid var(--ink); border-radius:8px; padding:8px 20px;
-    font-weight:600; font-size:14px; transition:none;
-  }
-  .btn-mac:hover{background:var(--ink); color:var(--paper)}
-  .btn-mac.primary{box-shadow:0 0 0 2px var(--paper), 0 0 0 3.5px var(--ink)}
-  .tlink{font-size:14px; font-weight:600; color:var(--link); text-decoration:underline}
-  .tlink:hover{color:var(--ink)}
-
-  /* ── Bento of windows ─────────────────── */
-  .bento{display:grid; grid-template-columns:repeat(4, 1fr); grid-auto-rows:176px; grid-auto-flow:dense; gap:16px; padding-bottom:16px}
-  .tile{
-    background:var(--paper); border:1.5px solid var(--ink); border-radius:2px;
-    position:relative; overflow:hidden; display:flex; flex-direction:column;
-    box-shadow:var(--shadow); transition:transform .12s, box-shadow .12s;
-    text-align:left; font:inherit; color:inherit;
-  }
-  .tile:hover{transform:translate(-1px,-1px); box-shadow:4px 4px 0 rgba(0,0,0,.9)}
-
-  /* System 7 title bar */
-  .bar{
-    position:relative; flex:0 0 23px; height:23px;
-    border-bottom:1.5px solid var(--ink); background:var(--paper);
-    display:flex; align-items:center; justify-content:center;
-  }
-  .bar::before{ /* pinstripes */
-    content:""; position:absolute; left:6px; right:6px; top:5px; bottom:5px;
-    background:repeating-linear-gradient(to bottom, var(--ink) 0 1px, transparent 1px 3px);
-  }
-  .bar .t{
-    position:relative; z-index:1; background:var(--paper); padding:0 8px;
-    font-family:Silkscreen, monospace; font-size:9px; letter-spacing:.02em;
-    max-width:72%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  }
-  .bar .cb{ /* close box */
-    position:absolute; z-index:1; left:8px; top:50%; transform:translateY(-50%);
-    width:11px; height:11px; background:var(--paper); border:1.5px solid var(--ink);
-    box-shadow:0 0 0 3px var(--paper);
-  }
-
-  .in{flex:1; min-height:0; padding:16px 18px; position:relative}
-  .tag{font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
-  .in h2{font-size:18px; font-weight:700; letter-spacing:-.01em; margin-top:6px}
-  .in p{font-size:13.5px; color:var(--muted); margin-top:5px}
-  .go{position:absolute; left:18px; bottom:14px; font-size:13px; font-weight:600; color:var(--link); text-decoration:underline}
-  .go:hover{color:var(--ink)}
-
-  .c2{grid-column:span 2}
-  .r2{grid-row:span 2}
-  .r3{grid-row:span 3}
-  .full{grid-column:1 / -1}
-
-  /* Photo window */
-  .t-photo img{flex:1; min-height:0; width:100%; object-fit:cover}
-  .t-photo figcaption{
-    flex:0 0 auto; border-top:1.5px solid var(--ink); background:var(--paper);
-    padding:7px 12px; font-size:11px; color:#222;
-  }
-
-  /* 3D model windows (click-to-load Sketchfab) */
-  .model{cursor:pointer}
-  .model img{flex:1; min-height:0; width:100%; object-fit:cover}
-  .model .play{
-    position:absolute; top:31px; right:8px; z-index:2;
-    width:26px; height:26px; background:var(--paper); border:1.5px solid var(--ink);
-    display:grid; place-items:center; box-shadow:2px 2px 0 rgba(0,0,0,.9);
-  }
-  .model:hover .play{background:var(--ink)}
-  .model:hover .play svg path{fill:#fff}
-  .model iframe{position:absolute; left:0; right:0; bottom:0; top:23px; width:100%; height:calc(100% - 23px); border:0; z-index:3}
-
-  /* Text windows */
-  .t-list p{font-size:13px; line-height:1.6; color:var(--muted)}
-  .t-list p b{color:var(--ink); font-weight:700}
-  .t-list p + p{margin-top:9px}
-
-  .t-rows ul{list-style:none; margin-top:2px}
-  .t-rows li{display:flex; justify-content:space-between; align-items:baseline; gap:14px; padding:8px 0; border-bottom:1px dotted #888; font-size:13px}
-  .t-rows li:last-child{border-bottom:0}
-  .t-rows li a{font-weight:600; color:var(--link); text-decoration:underline; font-size:12.5px; white-space:nowrap}
-  .t-rows li a:hover{color:var(--ink)}
-
-  /* Stat windows */
-  .t-stat .in{display:flex; flex-direction:column; justify-content:space-between}
-  .t-stat b{font-family:Silkscreen, monospace; font-size:clamp(20px, 2.6vw, 30px); font-weight:700; letter-spacing:-.02em}
-  .t-stat span{font-size:11.5px; color:var(--muted)}
-
-  /* Contact window */
-  .t-contact .in{display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; padding:22px 26px}
-  .t-contact h2{font-family:Silkscreen, monospace; font-size:clamp(18px, 3vw, 30px); font-weight:700; margin:0}
-  .t-contact .sub{color:var(--muted); font-size:13px; margin-top:6px}
-
-  footer{padding:26px 0 40px; font-size:12.5px; color:#2e2e2e; display:flex; flex-wrap:wrap; gap:8px 22px; justify-content:space-between}
-  footer a{color:#2e2e2e; text-decoration:underline}
-  footer a:hover{color:var(--ink)}
-
-  :focus-visible{outline:2px dotted var(--ink); outline-offset:2px}
-
-  @media (max-width:880px){
-    .bento{grid-template-columns:repeat(2, 1fr); grid-auto-rows:164px}
-    .hero{padding-top:52px; padding-bottom:36px}
-  }
-  @media (max-width:520px){
-    .bento{grid-template-columns:repeat(2, 1fr); grid-auto-rows:152px; gap:11px}
-    .in{padding:14px 15px}
-    .go{left:15px}
-  }
-</style>
+<script>
+  // Runs before first paint: switch on the desktop, and show the startup screen on a first visit only.
+  (function () {
+    var d = document.documentElement;
+    d.classList.add('js');
+    try {
+      var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!localStorage.getItem('ab-booted') && !location.hash && !calm) d.classList.add('booting');
+    } catch (e) {}
+  })();
+</script>
 </head>
 <body>
 
-<nav>
-  <div class="wrap nav-in">
-    <span class="apple" aria-hidden="true"><svg width="13" height="15" viewBox="0 0 13 15"><path d="M10.8 7.9c0-1.9 1.6-2.8 1.6-2.8S11.5 3.6 9.6 3.6c-1.1 0-2 .6-2.5.6-.6 0-1.4-.6-2.4-.6C2.8 3.6 1 5.2 1 8.1c0 2.9 2.1 6.3 3.7 6.3.6 0 1.5-.6 2.4-.6.9 0 1.6.6 2.4.6 1.7 0 3.2-3.2 3.2-3.2s-1.9-.9-1.9-3.3zM8.9 2.4C9.6 1.6 10 .5 9.9 0 9 .1 8.1.6 7.5 1.4 6.9 2.1 6.5 3.2 6.6 3.7c1 0 1.7-.5 2.3-1.3z" fill="#000"/></svg></span>
-    <span class="menu name pixel" style="font-size:10px">Austin Beaulier</span>
-    <a class="menu" href="/projects/">Projects</a>
-    <a class="menu" href="https://www.imdb.com/name/nm5944112/">IMDb</a>
-    <a class="menu" href="https://sketchfab.com/Austin.Beaulier">Sketchfab</a>
-    <a class="menu" href="https://www.instagram.com/austinbeaulier/">Instagram</a>
-    <a class="menu" href="mailto:austinbeaulier@gmail.com">Email</a>
-    <span class="clock pixel" id="menu-clock"></span>
+<!-- Startup screen (first visit, and Special → Restart) -->
+<div id="boot" aria-hidden="true">
+  <div class="boot-happy"><i class="ic" data-icon="happymac"></i></div>
+  <div class="boot-welcome">
+    <div class="welcome">
+      <i class="ic" data-icon="happymac"></i>
+      <p><b>Austin Beaulier</b><span>Welcome to Macintosh.</span></p>
+    </div>
   </div>
-</nav>
+  <div class="parade"></div>
+</div>
 
-<header class="wrap hero" id="top">
-  <p class="eyebrow pixel">VFX Supervisor · 3D Artist — Los Angeles</p>
-  <h1 class="pixel">Austin Beaulier</h1>
-  <p class="pitch">I capture the real world and turn it into films, games, and tools.</p>
-  <div class="cta-row">
-    <a class="btn-mac primary" href="mailto:austinbeaulier@gmail.com">Get in touch</a>
-    <a class="tlink" href="https://www.imdb.com/name/nm5944112/">IMDb ↗</a>
+<!-- ── Menu bar ───────────────────────────────────── -->
+<header class="menubar">
+  <nav class="menus" aria-label="Menu bar">
+    <div class="menu" data-menu="apple">
+      <button class="mt" aria-haspopup="menu" aria-expanded="false" aria-label="Apple menu"><svg class="apple" width="13" height="15" viewBox="0 0 13 15" aria-hidden="true"><path d="M10.8 7.9c0-1.9 1.6-2.8 1.6-2.8S11.5 3.6 9.6 3.6c-1.1 0-2 .6-2.5.6-.6 0-1.4-.6-2.4-.6C2.8 3.6 1 5.2 1 8.1c0 2.9 2.1 6.3 3.7 6.3.6 0 1.5-.6 2.4-.6.9 0 1.6.6 2.4.6 1.7 0 3.2-3.2 3.2-3.2s-1.9-.9-1.9-3.3zM8.9 2.4C9.6 1.6 10 .5 9.9 0 9 .1 8.1.6 7.5 1.4 6.9 2.1 6.5 3.2 6.6 3.7c1 0 1.7-.5 2.3-1.3z" fill="#000"/></svg></button>
+      <div class="dd" role="menu" aria-label="Apple">
+        <button role="menuitem" data-cmd="open:aboutmac">About This Macintosh…</button>
+        <hr>
+        <button role="menuitem" data-cmd="open:patterns">Control Panels</button>
+        <button role="menuitem" data-cmd="open:puzzle">Puzzle</button>
+        <hr>
+        <a role="menuitem" href="https://www.instagram.com/austinbeaulier/" target="_blank" rel="noopener">Instagram</a>
+        <a role="menuitem" href="https://www.youtube.com/@AustinBeaulier" target="_blank" rel="noopener">YouTube</a>
+        <a role="menuitem" href="https://www.tiktok.com/@austinbeaulier" target="_blank" rel="noopener">TikTok</a>
+      </div>
+    </div>
+    <div class="menu" data-menu="file">
+      <button class="mt" aria-haspopup="menu" aria-expanded="false">File</button>
+      <div class="dd" role="menu" aria-label="File">
+        <button role="menuitem" data-cmd="open-selected">Open</button>
+        <button role="menuitem" data-cmd="close">Close Window</button>
+        <button role="menuitem" data-cmd="close-all">Close All</button>
+        <hr>
+        <button role="menuitem" data-cmd="info">Get Info</button>
+      </div>
+    </div>
+    <div class="menu" data-menu="edit">
+      <button class="mt" aria-haspopup="menu" aria-expanded="false">Edit</button>
+      <div class="dd" role="menu" aria-label="Edit">
+        <button role="menuitem" disabled>Undo</button>
+        <hr>
+        <button role="menuitem" disabled>Cut</button>
+        <button role="menuitem" disabled>Copy</button>
+        <button role="menuitem" disabled>Paste</button>
+        <button role="menuitem" disabled>Clear</button>
+        <hr>
+        <button role="menuitem" data-cmd="copy-email">Copy Email Address</button>
+      </div>
+    </div>
+    <div class="menu" data-menu="view">
+      <button class="mt" aria-haspopup="menu" aria-expanded="false">View</button>
+      <div class="dd" role="menu" aria-label="View">
+        <button role="menuitemradio" aria-checked="false" data-cmd="view-icon">by Icon</button>
+        <button role="menuitemradio" aria-checked="false" data-cmd="view-name">by Name</button>
+      </div>
+    </div>
+    <div class="menu" data-menu="special">
+      <button class="mt" aria-haspopup="menu" aria-expanded="false">Special</button>
+      <div class="dd" role="menu" aria-label="Special">
+        <button role="menuitem" data-cmd="cleanup">Clean Up Windows</button>
+        <button role="menuitem" data-cmd="empty-trash">Empty Trash…</button>
+        <hr>
+        <button role="menuitem" data-cmd="restart">Restart</button>
+        <button role="menuitem" data-cmd="shutdown">Shut Down</button>
+      </div>
+    </div>
+  </nav>
+  <a class="mb-name pixel" href="/">Austin Beaulier</a>
+  <div class="mb-right">
+    <button class="mb-btn" id="sound-btn" aria-label="Sound" aria-pressed="true" title="Sound on">
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 5.5h3l4-3v11l-4-3h-3z" fill="#000"/><path class="waves" d="M11 5.2a3.6 3.6 0 0 1 0 5.6M12.9 3.3a6.2 6.2 0 0 1 0 9.4" fill="none" stroke="#000" stroke-width="1.4"/><path class="mute" d="M10.5 5.5l4 5M14.5 5.5l-4 5" stroke="#000" stroke-width="1.5"/></svg>
+    </button>
+    <button class="clock pixel" id="menu-clock" aria-label="Clock"></button>
   </div>
 </header>
 
-<main class="wrap bento">
+<main id="desktop">
 
-  <!-- Photo -->
-  <figure class="tile t-photo c2 r3">
-    <div class="bar"><span class="cb"></span><span class="t">austin-beaulier.jpg</span></div>
-    <img src="images/austin-beaulier-vfx-supervisor.jpg" alt="Austin Beaulier, VFX supervisor and 3D artist, at the 11th Asian World Film Festival" width="1200" height="1200" fetchpriority="high">
-    <figcaption>Austin Beaulier at the 11th Asian World Film Festival — VFX supervisor &amp; 3D artist, Los Angeles</figcaption>
-  </figure>
+  <!-- ── Desktop icons ──────────────────────────────── -->
+  <nav class="desk-icons" aria-label="Desktop">
+    <a class="icon" href="#hd" data-open="hd"><i class="ic" data-icon="hd"></i><span class="nm">Macintosh HD</span></a>
+    <a class="icon" href="#readme" data-open="readme"><i class="ic" data-icon="doc"></i><span class="nm">Read Me</span></a>
+    <a class="icon" href="#scans" data-open="scans"><i class="ic" data-icon="folder-scans"></i><span class="nm">Scans</span></a>
+    <a class="icon" href="#apps" data-open="apps"><i class="ic" data-icon="folder-apps"></i><span class="nm">Applications</span></a>
+    <a class="icon" href="#films" data-open="films"><i class="ic" data-icon="folder-films"></i><span class="nm">Films</span></a>
+    <a class="icon" href="#credits" data-open="credits"><i class="ic" data-icon="clapper"></i><span class="nm">Credits</span></a>
+    <a class="icon" href="#contact" data-open="contact"><i class="ic" data-icon="letter"></i><span class="nm">Contact</span></a>
+    <a class="icon trash" href="#trash" data-open="trash"><i class="ic" data-icon="trashfull"></i><span class="nm">Trash</span></a>
+  </nav>
 
-  <!-- Featured scan -->
-  <button class="tile model c2 r3" data-uid="69dfad2593604fb68b16eb83a0c41648" data-name="Game Over — videogame museum scan">
-    <span class="bar"><span class="cb"></span><span class="t">videogame-museum.scan — click to spin</span></span>
-    <img loading="lazy" src="https://media.sketchfab.com/models/69dfad2593604fb68b16eb83a0c41648/thumbnails/6832e8fd430347b4b88c73eeee6a4fe0/00324b81ae2f47e6b095d820fd56c765.jpeg" alt="Photogrammetry scan of a videogame museum by Austin Beaulier">
-    <span class="play"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#000"/></svg></span>
-  </button>
-
-  <!-- Stats -->
-  <div class="tile t-stat"><div class="bar"><span class="cb"></span><span class="t">reel.mov</span></div><div class="in"><b>~3M</b><span>views on one photogrammetry reel</span></div></div>
-  <div class="tile t-stat"><div class="bar"><span class="cb"></span><span class="t">sketchfab</span></div><div class="in"><b>700K+</b><span>Sketchfab model views</span></div></div>
-  <div class="tile t-stat"><div class="bar"><span class="cb"></span><span class="t">imdb</span></div><div class="in"><b>13+</b><span>film &amp; TV screen credits</span></div></div>
-  <div class="tile t-stat"><div class="bar"><span class="cb"></span><span class="t">apps</span></div><div class="in"><b>3</b><span>apps shipped</span></div></div>
-
-  <!-- Now -->
-  <div class="tile c2">
-    <div class="bar"><span class="cb"></span><span class="t">drive-me-to-rap.movie</span></div>
-    <div class="in">
-      <p class="tag">Feature Film</p>
-      <h2>Drive Me to Rap</h2>
-      <p>A mocap feature made in Unreal Engine 5. SAG-AFTRA signatory.</p>
-      <a class="go" href="https://www.drivemetorap.com/">drivemetorap.com →</a>
+  <!-- ── Read Me ────────────────────────────────────── -->
+  <section class="win doc" id="readme" aria-labelledby="t-readme" data-w="580" data-h="680">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-readme">Read Me</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="body">
+      <div class="who">
+        <img src="images/austin-beaulier-vfx-supervisor.jpg" alt="Austin Beaulier, VFX supervisor and 3D artist, at the 11th Asian World Film Festival" width="1200" height="1200" fetchpriority="high">
+        <div>
+          <p class="eyebrow">VFX Supervisor · 3D Artist — Los Angeles</p>
+          <h1>Austin Beaulier</h1>
+          <p class="pitch">I capture the real world and turn it into films, games, and tools.</p>
+        </div>
+      </div>
+      <p class="bio">8+ years in 3D capture — photogrammetry, Gaussian splatting, volumetric capture, and mocap pipelines built from tools anyone can afford. Work appearing in productions for <b>Lucasfilm, Netflix, Apple TV+, Amazon, Universal, and Warner Bros.</b>, with past roles at Snap, Amazon Studios, and Gentle Giant Studios.</p>
+      <ul class="stats">
+        <li><b><span class="approx">~</span>3M</b><span>views on one photogrammetry reel</span></li>
+        <li><b>700K+</b><span>Sketchfab model views</span></li>
+        <li><b>13+</b><span>film &amp; TV screen credits</span></li>
+        <li><b>3</b><span>apps shipped</span></li>
+      </ul>
+      <h3 class="tag">Now</h3>
+      <ul class="now">
+        <li><b>Drive Me to Rap</b> — a mocap feature made in Unreal Engine 5. SAG-AFTRA signatory. <a href="https://www.drivemetorap.com/" target="_blank" rel="noopener">drivemetorap.com ↗</a></li>
+        <li><b>Texture Forager</b> — photograph any surface → a clean, tileable PBR material. iOS &amp; Android. <a href="https://www.textureforager.com/" target="_blank" rel="noopener">textureforager.com ↗</a></li>
+      </ul>
+      <div class="cta">
+        <a class="btn default" href="mailto:austinbeaulier@gmail.com">Get in touch</a>
+        <a class="btn" href="https://www.imdb.com/name/nm5944112/" target="_blank" rel="noopener">IMDb ↗</a>
+      </div>
+      <p class="tip"><span class="i" aria-hidden="true">i</span><span><span class="tip-desk">Double-click an icon to open it.</span><span class="tip-touch">Tap an icon to open it.</span> Start with <a href="#scans" data-open="scans">Scans</a>, <a href="#credits" data-open="credits">Credits</a>, or <a href="#apps" data-open="apps">Applications</a>.</span></p>
+      <button class="btn explore" data-cmd="close">Explore the desktop →</button>
     </div>
-  </div>
-  <div class="tile c2">
-    <div class="bar"><span class="cb"></span><span class="t">texture-forager.app</span></div>
-    <div class="in">
-      <p class="tag">App</p>
-      <h2>Texture Forager</h2>
-      <p>Photograph any surface → a clean, tileable PBR material. iOS &amp; Android.</p>
-      <a class="go" href="https://www.textureforager.com/">textureforager.com →</a>
+  </section>
+
+  <!-- ── Credits ────────────────────────────────────── -->
+  <section class="win doc" id="credits" aria-labelledby="t-credits" data-w="500" data-h="460">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-credits">Credits</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="body">
+      <h3 class="tag">Screen credits</h3>
+      <div class="credit-group">
+        <p class="role">3D scanning &amp; volumetric capture</p>
+        <ul class="titles">
+          <li>The Mandalorian</li>
+          <li>Ahsoka</li>
+          <li>Obi-Wan Kenobi</li>
+          <li>The Book of Boba Fett</li>
+          <li>Nope</li>
+          <li>Black Adam</li>
+          <li>The Gray Man</li>
+          <li>For All Mankind</li>
+          <li>Star Trek: Discovery</li>
+          <li>Mr. &amp; Mrs. Smith</li>
+        </ul>
+      </div>
+      <div class="credit-group">
+        <p class="role">VFX supervisor</p>
+        <ul class="titles">
+          <li>Dr. Squatch</li>
+          <li>Muffled</li>
+          <li>Floating Carousel</li>
+          <li>A Kidnapping</li>
+        </ul>
+      </div>
+      <p class="small">Productions for Lucasfilm, Netflix, Apple TV+, Amazon, Universal, and Warner Bros. Past roles at Snap, Amazon Studios, and Gentle Giant Studios.</p>
+      <div class="cta"><a class="btn default" href="https://www.imdb.com/name/nm5944112/" target="_blank" rel="noopener">Full credits on IMDb ↗</a></div>
     </div>
-  </div>
+  </section>
 
-  <!-- Two more scans -->
-  <button class="tile model r2" data-uid="79a310e006fa406a8291319bf6f9c9e7" data-name="Vasquez Rocks scan">
-    <span class="bar"><span class="cb"></span><span class="t">vasquez-rocks.scan</span></span>
-    <img loading="lazy" src="https://media.sketchfab.com/models/79a310e006fa406a8291319bf6f9c9e7/thumbnails/7ff0a0a9596b43c9ac0f22429d3b2a36/3db7f1d655734aeba1f20a982abafaa0.jpeg" alt="Photogrammetry scan of Vasquez Rocks filming location by Austin Beaulier">
-    <span class="play"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#000"/></svg></span>
-  </button>
-  <button class="tile model r2" data-uid="de05fe8a0c314eeeb8f7478b92032f1d" data-name="Nintendo Power Glove scan">
-    <span class="bar"><span class="cb"></span><span class="t">power-glove.scan</span></span>
-    <img loading="lazy" src="https://media.sketchfab.com/models/de05fe8a0c314eeeb8f7478b92032f1d/thumbnails/d0b0155a94014f6d9637aecf4cf67917/40a3321c57be4084b0338c5c253ab757.jpeg" alt="Photogrammetry scan of a Nintendo Power Glove by Austin Beaulier">
-    <span class="play"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#000"/></svg></span>
-  </button>
-
-  <!-- Credits -->
-  <div class="tile t-list c2 r2">
-    <div class="bar"><span class="cb"></span><span class="t">credits.txt</span></div>
-    <div class="in">
-      <p class="tag">Screen Credits</p>
-      <p style="margin-top:10px"><b>3D scanning &amp; volumetric capture</b> — The Mandalorian, Ahsoka, Obi-Wan Kenobi, The Book of Boba Fett, Nope, Black Adam, The Gray Man, For All Mankind, Star Trek: Discovery, Mr. &amp; Mrs. Smith</p>
-      <p><b>VFX supervisor</b> — Dr. Squatch, Muffled, Floating Carousel, A Kidnapping</p>
-      <a class="go" href="https://www.imdb.com/name/nm5944112/">Full credits on IMDb →</a>
+  <!-- ── Scans ──────────────────────────────────────── -->
+  <section class="win folder" id="scans" aria-labelledby="t-scans" data-w="580" data-h="460">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-scans">Scans</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="hdr"><span class="count">13 items</span><span>431 scans on Sketchfab</span><span>700K+ views</span></div>
+    <div class="body">
+      <div class="items">
+        <a class="icon scan" href="https://sketchfab.com/models/69dfad2593604fb68b16eb83a0c41648" data-scan="69dfad2593604fb68b16eb83a0c41648" data-slug="videogame-museum"><img loading="lazy" src="https://media.sketchfab.com/models/69dfad2593604fb68b16eb83a0c41648/thumbnails/6832e8fd430347b4b88c73eeee6a4fe0/db3915adb83345d7a1efb45cc4a068ec.jpeg" alt="Photogrammetry scan of the Game Over videogame museum by Austin Beaulier" width="256" height="144"><span class="nm">Videogame Museum</span><span class="kind">3D scan</span></a>
+        <a class="icon scan" href="https://sketchfab.com/models/79a310e006fa406a8291319bf6f9c9e7" data-scan="79a310e006fa406a8291319bf6f9c9e7" data-slug="vasquez-rocks"><img loading="lazy" src="https://media.sketchfab.com/models/79a310e006fa406a8291319bf6f9c9e7/thumbnails/7ff0a0a9596b43c9ac0f22429d3b2a36/cb90b552b3f846be99c7b6bfef9ecfb8.jpeg" alt="Photogrammetry scan of Vasquez Rocks filming location by Austin Beaulier" width="256" height="144"><span class="nm">Vasquez Rocks</span><span class="kind">3D scan</span></a>
+        <a class="icon scan" href="https://sketchfab.com/models/de05fe8a0c314eeeb8f7478b92032f1d" data-scan="de05fe8a0c314eeeb8f7478b92032f1d" data-slug="power-glove"><img loading="lazy" src="https://media.sketchfab.com/models/de05fe8a0c314eeeb8f7478b92032f1d/thumbnails/d0b0155a94014f6d9637aecf4cf67917/e549253505114bfc98e7c8a5514f8581.jpeg" alt="Photogrammetry scan of a Nintendo Power Glove by Austin Beaulier" width="256" height="144"><span class="nm">Power Glove</span><span class="kind">3D scan</span></a>
+        <a class="icon scan" href="https://sketchfab.com/models/a1e63357f3fa4a8d9a310db3ae35c2fb" data-scan="a1e63357f3fa4a8d9a310db3ae35c2fb" data-slug="our-lady-of-grace"><img loading="lazy" src="https://media.sketchfab.com/models/a1e63357f3fa4a8d9a310db3ae35c2fb/thumbnails/91123f9d8d614f8b99011ac454045e76/70a652d1613646e491548cfb459bd591.jpeg" alt="Photogrammetry scan of an Our Lady of Grace statue by Austin Beaulier" width="256" height="144"><span class="nm">Our Lady of Grace</span><span class="kind">3D scan</span></a>
+        <a class="icon scan" href="https://sketchfab.com/models/be0a02fccec54c10aeec203db4bd3433" data-scan="be0a02fccec54c10aeec203db4bd3433" data-slug="shark-fossil"><img loading="lazy" src="https://media.sketchfab.com/models/be0a02fccec54c10aeec203db4bd3433/thumbnails/555e349f49e9431da55448138cfcfa4c/3095de8eadc74673b4011c41617ac3ab.jpeg" alt="Photogrammetry scan of a reptilian shark fossil by Austin Beaulier" width="256" height="144"><span class="nm">Shark Fossil</span><span class="kind">3D scan</span></a>
+        <a class="icon scan" href="https://sketchfab.com/models/96b4546388c546cabd03f4f82705edb4" data-scan="96b4546388c546cabd03f4f82705edb4" data-slug="houston-graffiti"><img loading="lazy" src="https://media.sketchfab.com/models/96b4546388c546cabd03f4f82705edb4/thumbnails/624c1b804f914efabd21b880be2a8004/d777ee26175540598fb1abcda237931b.jpeg" alt="Photogrammetry scan of the Houston graffiti building by Austin Beaulier" width="256" height="144"><span class="nm">Houston Graffiti</span><span class="kind">3D scan</span></a>
+        <a class="icon scan" href="https://sketchfab.com/models/deae0089f1894116b74d91caabdce754" data-scan="deae0089f1894116b74d91caabdce754" data-slug="mayan-temple"><img loading="lazy" src="https://media.sketchfab.com/models/deae0089f1894116b74d91caabdce754/thumbnails/6311cf4ae5cc43ff90bcd2d866d51c43/613c50a86fe34a5fbab0bbfba2e64e6d.jpeg" alt="Photogrammetry scan of the Hochob Mayan temple by Austin Beaulier" width="256" height="144"><span class="nm">Mayan Temple</span><span class="kind">3D scan</span></a>
+        <a class="icon scan" href="https://sketchfab.com/models/46433ac557194bf0864593be6e71736e" data-scan="46433ac557194bf0864593be6e71736e" data-slug="moltrasio"><img loading="lazy" src="https://media.sketchfab.com/models/46433ac557194bf0864593be6e71736e/thumbnails/3c72d6f7460c4f28ab24973d3e075614/ead77c5713e54b8ca0e187083058c1b7.jpeg" alt="Photogrammetry scan of the Italian town of Moltrasio by Austin Beaulier" width="256" height="144"><span class="nm">Moltrasio, Italy</span><span class="kind">3D scan</span></a>
+        <a class="icon scan" href="https://sketchfab.com/models/4a86679ed7ec403eb43e1c4532a9ad66" data-scan="4a86679ed7ec403eb43e1c4532a9ad66" data-slug="jet-turbine"><img loading="lazy" src="https://media.sketchfab.com/models/4a86679ed7ec403eb43e1c4532a9ad66/thumbnails/5521b9783f164e82b474e09b7552946a/87feb67cd6934bbea221d908915d32d9.jpeg" alt="Photogrammetry scan of a jet engine turbine by Austin Beaulier" width="256" height="144"><span class="nm">Jet Turbine</span><span class="kind">3D scan</span></a>
+        <a class="icon scan" href="https://sketchfab.com/models/6b26a03bcda84b0fbdb8576678725785" data-scan="6b26a03bcda84b0fbdb8576678725785" data-slug="bunker-hill"><img loading="lazy" src="https://media.sketchfab.com/models/6b26a03bcda84b0fbdb8576678725785/thumbnails/e1b4e9c2e4b14208a62ab46a25d834b4/27799c126405498a92a6680b92a4f379.jpeg" alt="Photogrammetry scan of Bunker Hill by Michael C. McMillen, by Austin Beaulier" width="256" height="144"><span class="nm">Bunker Hill</span><span class="kind">3D scan</span></a>
+        <a class="icon scan" href="https://sketchfab.com/models/a806f2016fd34f80be69dca8956da0f7" data-scan="a806f2016fd34f80be69dca8956da0f7" data-slug="washed-up-boat"><img loading="lazy" src="https://media.sketchfab.com/models/a806f2016fd34f80be69dca8956da0f7/thumbnails/2822d991926f412c8b9f742905291407/0c0ce6866feb4ff397f7865ab447b18c.jpeg" alt="Photogrammetry scan of an abandoned washed-up boat by Austin Beaulier" width="256" height="144"><span class="nm">Washed-Up Boat</span><span class="kind">3D scan</span></a>
+        <a class="icon scan" href="https://sketchfab.com/models/bf866a3a0d2244ac9da1f0d322c56347" data-scan="bf866a3a0d2244ac9da1f0d322c56347" data-slug="overlook-hotel"><img loading="lazy" src="https://media.sketchfab.com/models/bf866a3a0d2244ac9da1f0d322c56347/thumbnails/524675452f2046e4b66c16b98b8065c4/e07be036bf3747daa72bcfedf995f133.jpeg" alt="3D scan of the Overlook Hotel from The Shining by Austin Beaulier" width="256" height="144"><span class="nm">Overlook Hotel</span><span class="kind">3D scan</span></a>
+        <a class="icon alias" href="https://sketchfab.com/Austin.Beaulier" data-ext><i class="ic" data-icon="globe"></i><span class="nm">All 431 scans</span><span class="kind">alias</span></a>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Small windows -->
-  <div class="tile">
-    <div class="bar"><span class="cb"></span><span class="t">odyssey.ue5</span></div>
-    <div class="in"><p class="tag">Series</p><h2>The Odyssey in UE5</h2><a class="go" href="https://www.youtube.com/@AustinBeaulier">Follow →</a></div>
-  </div>
-  <div class="tile">
-    <div class="bar"><span class="cb"></span><span class="t">pocket-runner.app</span></div>
-    <div class="in"><p class="tag">App</p><h2>Pocket Runner</h2><a class="go" href="https://apps.apple.com/us/app/pocket-runner-for-pc/id6761451104">App Store →</a></div>
-  </div>
-  <div class="tile">
-    <div class="bar"><span class="cb"></span><span class="t">library</span></div>
-    <div class="in"><p class="tag">Library</p><h2>431 scans</h2><a class="go" href="https://sketchfab.com/Austin.Beaulier">Sketchfab →</a></div>
-  </div>
-  <div class="tile">
-    <div class="bar"><span class="cb"></span><span class="t">press.pdf</span></div>
-    <div class="in"><p class="tag">Press</p><h2>Make: author</h2><a class="go" href="https://makezine.com/author/austin-beaulier">Articles →</a></div>
-  </div>
-
-  <!-- About -->
-  <div class="tile t-list c2 r2">
-    <div class="bar"><span class="cb"></span><span class="t">About This Artist</span></div>
-    <div class="in">
-      <p style="margin-top:2px">8+ years in 3D capture — photogrammetry, Gaussian splatting, volumetric capture, and mocap pipelines built from tools anyone can afford. Work appearing in productions for <b>Lucasfilm, Netflix, Apple TV+, Amazon, Universal, and Warner Bros.</b>, with past roles at Snap, Amazon Studios, and Gentle Giant Studios.</p>
-      <p>Luma Labs &amp; Tripo3D sponsored creator · Apple Vision Pro Hackathon · Epic Fab seller</p>
+  <!-- ── Applications ───────────────────────────────── -->
+  <section class="win folder" id="apps" aria-labelledby="t-apps" data-w="540" data-h="350">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-apps">Applications</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="hdr"><span class="count">7 items</span><span>iPhone · Android · Windows · Web</span><span>3 shipped apps</span></div>
+    <div class="body">
+      <div class="items">
+        <a class="icon" href="#tf" data-open="tf"><i class="ic" data-icon="tf"></i><span class="nm">Texture Forager</span><span class="kind">application</span></a>
+        <a class="icon" href="#pr" data-open="pr"><i class="ic" data-icon="pr"></i><span class="nm">Pocket Runner</span><span class="kind">application</span></a>
+        <a class="icon" href="#ss" data-open="ss"><i class="ic" data-icon="ss"></i><span class="nm">ScanSift</span><span class="kind">application</span></a>
+        <a class="icon" href="#dice" data-open="dice"><i class="ic" data-icon="dice"></i><span class="nm">Nocturne Dice</span><span class="kind">application</span></a>
+        <a class="icon" href="#gridfinity" data-open="gridfinity"><i class="ic" data-icon="grid"></i><span class="nm">Gridfinity Configurator</span><span class="kind">application</span></a>
+        <a class="icon alias" href="https://austinbeaulier.gumroad.com/" data-ext data-info="A Blender add-on that imports a zipped PBR texture set in one click."><i class="ic" data-icon="box"></i><span class="nm">PBR ZIP Importer</span><span class="kind">Blender add-on</span></a>
+        <a class="icon alias" href="https://www.fab.com/sellers/Austin%20Beaulier" data-ext data-info="Scanned assets for Unreal Engine on Epic's Fab store."><i class="ic" data-icon="bag"></i><span class="nm">Fab Store</span><span class="kind">Unreal assets</span></a>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Built -->
-  <div class="tile t-rows c2 r2">
-    <div class="bar"><span class="cb"></span><span class="t">shipped.sit</span></div>
-    <div class="in">
-      <p class="tag" style="margin-bottom:6px">Built</p>
-      <ul>
-        <li>Texture Forager — iOS <a href="https://apps.apple.com/us/app/texture-forager/id6759348882">App Store →</a></li>
-        <li>Texture Forager — Android <a href="https://play.google.com/store/apps/details?id=com.austin.textureforager">Google Play →</a></li>
-        <li>Pocket Runner — phone as motion controller <a href="https://apps.apple.com/us/app/pocket-runner-for-pc/id6761451104">App Store →</a></li>
-        <li>Gridfinity Configurator — drawer bins to STL <a href="/gridfinity-config/">Open →</a></li>
-        <li>Nocturne Dice — 3D D&amp;D dice roller <a href="/dice/">Open →</a></li>
-        <li>PBR ZIP Importer for Blender <a href="https://austinbeaulier.gumroad.com/">Gumroad →</a></li>
-        <li>Scanned assets for Unreal <a href="https://www.fab.com/sellers/Austin%20Beaulier">Fab →</a></li>
+  <!-- ── Films ──────────────────────────────────────── -->
+  <section class="win folder" id="films" aria-labelledby="t-films" data-w="400" data-h="230">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-films">Films</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="hdr"><span class="count">2 items</span><span>Unreal Engine 5</span><span></span></div>
+    <div class="body">
+      <div class="items">
+        <a class="icon" href="#dmtr" data-open="dmtr"><i class="ic" data-icon="movie"></i><span class="nm">Drive Me to Rap</span><span class="kind">feature film</span></a>
+        <a class="icon" href="#odyssey" data-open="odyssey"><i class="ic" data-icon="movie"></i><span class="nm">The Odyssey in UE5</span><span class="kind">series</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Contact ────────────────────────────────────── -->
+  <section class="win doc" id="contact" aria-labelledby="t-contact" data-w="440" data-h="520">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-contact">Contact</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="body">
+      <p class="hello">LET'S BUILD.</p>
+      <p class="sub">VFX supervision · 3D capture pipelines · sponsorships</p>
+      <div class="cta"><a class="btn default" href="mailto:austinbeaulier@gmail.com">austinbeaulier@gmail.com</a></div>
+      <ul class="links">
+        <li><a href="https://www.instagram.com/austinbeaulier/" target="_blank" rel="noopener">Instagram <span>@austinbeaulier ↗</span></a></li>
+        <li><a href="https://www.youtube.com/@AustinBeaulier" target="_blank" rel="noopener">YouTube <span>@AustinBeaulier ↗</span></a></li>
+        <li><a href="https://www.tiktok.com/@austinbeaulier" target="_blank" rel="noopener">TikTok <span>@austinbeaulier ↗</span></a></li>
+        <li><a href="https://www.linkedin.com/in/austin-beaulier-ab971170/" target="_blank" rel="noopener">LinkedIn <span>↗</span></a></li>
+        <li><a href="https://www.imdb.com/name/nm5944112/" target="_blank" rel="noopener">IMDb <span>↗</span></a></li>
+        <li><a href="https://sketchfab.com/Austin.Beaulier" target="_blank" rel="noopener">Sketchfab <span>↗</span></a></li>
+        <li><a href="https://www.artstation.com/austinbeaulier" target="_blank" rel="noopener">ArtStation <span>↗</span></a></li>
+        <li><a href="https://github.com/austinbeaulier" target="_blank" rel="noopener">GitHub <span>↗</span></a></li>
+        <li><a href="https://x.com/austinbeaulier" target="_blank" rel="noopener">X <span>@austinbeaulier ↗</span></a></li>
       </ul>
     </div>
-  </div>
+  </section>
 
-  <!-- Contact -->
-  <div class="tile t-contact full">
-    <div class="bar"><span class="cb"></span><span class="t">hello</span></div>
-    <div class="in">
-      <div>
-        <h2>LET'S BUILD.</h2>
-        <p class="sub">VFX supervision · 3D capture pipelines · sponsorships</p>
+  <!-- ── Macintosh HD ───────────────────────────────── -->
+  <section class="win folder" id="hd" aria-labelledby="t-hd" data-w="520" data-h="320">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-hd">Macintosh HD</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="hdr"><span class="count">8 items</span><span>1.2 TB in disk</span><span>3 MB available</span></div>
+    <div class="body">
+      <div class="items">
+        <a class="icon" href="#apps" data-open="apps"><i class="ic" data-icon="folder-apps"></i><span class="nm">Applications</span><span class="kind">folder</span></a>
+        <a class="icon" href="#scans" data-open="scans"><i class="ic" data-icon="folder-scans"></i><span class="nm">Scans</span><span class="kind">folder</span></a>
+        <a class="icon" href="#films" data-open="films"><i class="ic" data-icon="folder-films"></i><span class="nm">Films</span><span class="kind">folder</span></a>
+        <a class="icon" href="#readme" data-open="readme"><i class="ic" data-icon="doc"></i><span class="nm">Read Me</span><span class="kind">document</span></a>
+        <a class="icon" href="#credits" data-open="credits"><i class="ic" data-icon="clapper"></i><span class="nm">Credits</span><span class="kind">document</span></a>
+        <a class="icon" href="#press" data-open="press"><i class="ic" data-icon="doc"></i><span class="nm">Press</span><span class="kind">document</span></a>
+        <a class="icon" href="#contact" data-open="contact"><i class="ic" data-icon="letter"></i><span class="nm">Contact</span><span class="kind">document</span></a>
+        <a class="icon" href="#system" data-open="system"><i class="ic" data-icon="folder-system"></i><span class="nm">System Folder</span><span class="kind">folder</span></a>
       </div>
-      <a class="btn-mac primary" href="mailto:austinbeaulier@gmail.com">austinbeaulier@gmail.com</a>
     </div>
-  </div>
+  </section>
+
+  <!-- ── Press ──────────────────────────────────────── -->
+  <section class="win doc" id="press" aria-labelledby="t-press" data-w="440" data-h="330">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-press">Press</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="body">
+      <h3 class="tag">Press &amp; sponsors</h3>
+      <ul class="rows">
+        <li><b>Make: author</b> <a href="https://makezine.com/author/austin-beaulier" target="_blank" rel="noopener">Articles ↗</a></li>
+        <li><b>Luma Labs &amp; Tripo3D</b> <span>sponsored creator</span></li>
+        <li><b>Apple Vision Pro Hackathon</b></li>
+        <li><b>Epic Fab seller</b> <a href="https://www.fab.com/sellers/Austin%20Beaulier" target="_blank" rel="noopener">Store ↗</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── App info windows ───────────────────────────── -->
+  <section class="win doc" id="tf" aria-labelledby="t-tf" data-w="440" data-h="340">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-tf">Texture Forager</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="body">
+      <div class="app-head"><span class="box"><i class="ic" data-icon="tf"></i></span><div><h3 class="name">Texture Forager</h3><p class="meta">iPhone · Android · $5.99</p></div></div>
+      <p class="what">Snap a photo of any surface (wood, rust, stone) and get a full PBR texture set for your 3D work.</p>
+      <div class="cta">
+        <a class="btn default" id="tf-ios" href="https://apps.apple.com/us/app/texture-forager/id6759348882" target="_blank" rel="noopener">App Store</a>
+        <a class="btn" id="tf-android" href="https://play.google.com/store/apps/details?id=com.austin.textureforager" target="_blank" rel="noopener">Google Play</a>
+      </div>
+      <a class="more" href="https://www.textureforager.com/" target="_blank" rel="noopener">Community library at textureforager.com ↗</a>
+    </div>
+  </section>
+
+  <section class="win doc" id="pr" aria-labelledby="t-pr" data-w="440" data-h="330">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-pr">Pocket Runner</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="body">
+      <div class="app-head"><span class="box"><i class="ic" data-icon="pr"></i></span><div><h3 class="name">Pocket Runner</h3><p class="meta">iPhone + Windows PC · $2.99</p></div></div>
+      <p class="what">Put your iPhone in your pocket and walk or jog to move in PC games. Your phone becomes the controller.</p>
+      <div class="cta"><a class="btn default" href="https://apps.apple.com/us/app/pocket-runner-for-pc/id6761451104" target="_blank" rel="noopener">Get it on the App Store</a></div>
+      <p class="note"><span class="i" aria-hidden="true">i</span><span>Pairs with a <b>free Windows companion app</b> on your PC.</span></p>
+    </div>
+  </section>
+
+  <section class="win doc" id="ss" aria-labelledby="t-ss" data-w="440" data-h="340">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-ss">ScanSift</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="body">
+      <div class="app-head"><span class="box"><i class="ic" data-icon="ss"></i></span><div><h3 class="name">ScanSift</h3><p class="meta">Windows · Free</p></div></div>
+      <p class="what">Drop in a phone video and get only the sharp frames, ready for photogrammetry or Gaussian splats.</p>
+      <div class="cta"><a class="btn default" href="https://github.com/austinbeaulier/Scan-Sift/releases/latest" target="_blank" rel="noopener">Download for Windows</a></div>
+      <a class="more" href="https://github.com/austinbeaulier/Scan-Sift" target="_blank" rel="noopener">Source code on GitHub ↗</a>
+      <p class="note" id="ss-phone-note" hidden><span class="i" aria-hidden="true">i</span><span>On your phone? <b>ScanSift runs on a PC.</b> Save this page and open it on your computer.</span></p>
+    </div>
+  </section>
+
+  <!-- ── Apps that run inside a window ──────────────── -->
+  <section class="win app" id="dice" aria-labelledby="t-dice" data-w="920" data-h="660">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-dice">Nocturne Dice</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="body"><div class="frame" data-src="dice/index.html" data-title="Nocturne Dice — 3D D&amp;D dice roller" data-allow="accelerometer; gyroscope; fullscreen; autoplay"><p class="loading">Loading…</p><div class="shield"></div></div></div>
+    <div class="foot"><span>A candlelit 3D dice roller for D&amp;D. Real-physics dice, free in your browser.</span><a href="dice/" target="_blank" rel="noopener">Open full screen ↗</a></div>
+  </section>
+
+  <section class="win app" id="gridfinity" aria-labelledby="t-gridfinity" data-w="1000" data-h="700">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-gridfinity">Gridfinity Configurator</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="body"><div class="frame" data-src="gridfinity-config/index.html" data-title="Gridfinity Configurator — drawer bins to STL" data-allow="fullscreen"><p class="loading">Loading…</p><div class="shield"></div></div></div>
+    <div class="foot"><span>Plan 3D-printed Gridfinity bins for your drawer, then download every bin as a print-ready STL.</span><a href="gridfinity-config/" target="_blank" rel="noopener">Open full screen ↗</a></div>
+  </section>
+
+  <!-- ── Film windows ───────────────────────────────── -->
+  <section class="win doc" id="dmtr" aria-labelledby="t-dmtr" data-w="440" data-h="300">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-dmtr">Drive Me to Rap</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="body">
+      <div class="app-head"><span class="box"><i class="ic" data-icon="movie"></i></span><div><h3 class="name">Drive Me to Rap</h3><p class="meta">Feature film · Unreal Engine 5</p></div></div>
+      <p class="what">A mocap feature made in Unreal Engine 5. SAG-AFTRA signatory.</p>
+      <div class="cta"><a class="btn default" href="https://www.drivemetorap.com/" target="_blank" rel="noopener">drivemetorap.com ↗</a></div>
+    </div>
+  </section>
+
+  <section class="win doc" id="odyssey" aria-labelledby="t-odyssey" data-w="440" data-h="300">
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-odyssey">The Odyssey in UE5</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="body">
+      <div class="app-head"><span class="box"><i class="ic" data-icon="movie"></i></span><div><h3 class="name">The Odyssey in UE5</h3><p class="meta">Series · Unreal Engine 5</p></div></div>
+      <p class="what">Scenes from Christopher Nolan's The Odyssey, recreated as cinematics in Unreal Engine 5.</p>
+      <div class="cta"><a class="btn default" href="https://www.youtube.com/@AustinBeaulier" target="_blank" rel="noopener">Follow on YouTube ↗</a></div>
+    </div>
+  </section>
+
+  <!-- ── Trash ──────────────────────────────────────── -->
+  <section class="win folder" id="trash" aria-labelledby="t-trash" data-w="460" data-h="250" data-js>
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-trash">Trash</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="hdr"><span class="count">5 items</span><span class="trash-size">48.2 GB</span><span></span></div>
+    <div class="body">
+      <div class="items">
+        <a class="icon" href="#trash" data-alert="“final_FINAL_v12.exr” can't be opened. There is a v13."><i class="ic" data-icon="doc"></i><span class="nm">final_<wbr>FINAL_<wbr>v12.exr</span><span class="kind">image</span></a>
+        <a class="icon" href="#trash" data-alert="“render_test_DONT_DELETE.mov” was deleted anyway. Sorry."><i class="ic" data-icon="movie"></i><span class="nm">render_<wbr>test_<wbr>DONT_<wbr>DELETE.mov</span><span class="kind">movie</span></a>
+        <a class="icon" href="#trash" data-alert="The client notes say: “Can we make it pop more?”"><i class="ic" data-icon="doc"></i><span class="nm">client_<wbr>notes_<wbr>v3_<wbr>revised.pdf</span><span class="kind">document</span></a>
+        <a class="icon" href="#trash" data-alert="Scan attempt 47 of a chrome teapot. Photogrammetry does not like shiny things."><i class="ic" data-icon="doc"></i><span class="nm">chrome_<wbr>teapot_<wbr>47.ply</span><span class="kind">3D scan</span></a>
+        <a class="icon" href="#trash" data-alert="It's empty. Like most untitled folders."><i class="ic" data-icon="folder"></i><span class="nm">untitled folder</span><span class="kind">folder</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── System Folder + extras ─────────────────────── -->
+  <section class="win folder" id="system" aria-labelledby="t-system" data-w="460" data-h="250" data-js>
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-system">System Folder</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="hdr"><span class="count">5 items</span><span>System 7.1</span><span></span></div>
+    <div class="body">
+      <div class="items">
+        <a class="icon" href="#system" data-alert="The Finder is already running." data-alert-icon="happymac"><i class="ic" data-icon="app"></i><span class="nm">Finder</span><span class="kind">application</span></a>
+        <a class="icon" href="#system" data-alert="This is the System file. It holds everything together. Please don't drag it to the Trash." data-alert-icon="caution"><i class="ic" data-icon="mac"></i><span class="nm">System</span><span class="kind">system file</span></a>
+        <a class="icon" href="#patterns" data-open="patterns"><i class="ic" data-icon="cpanel"></i><span class="nm">Control Panels</span><span class="kind">control panel</span></a>
+        <a class="icon" href="#extensions" data-open="extensions"><i class="ic" data-icon="folder"></i><span class="nm">Extensions</span><span class="kind">folder</span></a>
+        <a class="icon" href="#puzzle" data-open="puzzle"><i class="ic" data-icon="puzzle"></i><span class="nm">Puzzle</span><span class="kind">desk accessory</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="win folder" id="extensions" aria-labelledby="t-extensions" data-w="480" data-h="230" data-js>
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-extensions">Extensions</h2><button class="zb" aria-label="Zoom"></button></header>
+    <div class="hdr"><span class="count">5 items</span><span>loaded at startup</span><span></span></div>
+    <div class="body">
+      <div class="items">
+        <a class="icon" href="#extensions" data-alert="Render Farm Enabler is running. 0 of 1 nodes available." data-alert-icon="ext"><i class="ic" data-icon="ext"></i><span class="nm">Render Farm Enabler</span><span class="kind">system extension</span></a>
+        <a class="icon" href="#extensions" data-alert="Splat Driver loaded 4,812,331 Gaussians. Your fans may get loud." data-alert-icon="ext"><i class="ic" data-icon="ext"></i><span class="nm">Splat Driver 3.0</span><span class="kind">system extension</span></a>
+        <a class="icon" href="#extensions" data-alert="Coffee INIT is required to run Austin. Please refill." data-alert-icon="ext"><i class="ic" data-icon="ext"></i><span class="nm">Coffee INIT</span><span class="kind">system extension</span></a>
+        <a class="icon" href="#extensions" data-alert="Mocap Suit Driver can't find the suit. Is it in the dryer again?" data-alert-icon="caution"><i class="ic" data-icon="ext"></i><span class="nm">Mocap Suit Driver</span><span class="kind">system extension</span></a>
+        <a class="icon" href="#extensions" data-alert="Deadline Extender could not be loaded. It never loads." data-alert-icon="caution"><i class="ic" data-icon="ext"></i><span class="nm">Deadline Extender</span><span class="kind">system extension</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="win" id="aboutmac" aria-labelledby="t-aboutmac" data-w="470" data-h="300" data-fixed data-center data-js>
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-aboutmac">About This Macintosh</h2></header>
+    <div class="body">
+      <div class="about-top">
+        <i class="ic" data-icon="happymac"></i>
+        <div>
+          <p class="about-name">Austin's Macintosh</p>
+          <p>System Software 7.1 · Austin Beaulier, 2026</p>
+        </div>
+        <dl class="about-mem"><dt>Total Memory:</dt><dd>131,072K</dd><dt>Largest Unused Block:</dt><dd>512K</dd></dl>
+      </div>
+      <ul class="mem">
+        <li><i class="ic" data-icon="app"></i><span>Unreal Engine 5</span><span class="k">49,152K</span><span class="bar" style="--a:100%; --u:94%"><i></i></span></li>
+        <li><i class="ic" data-icon="app"></i><span>Blender</span><span class="k">24,576K</span><span class="bar" style="--a:50%; --u:72%"><i></i></span></li>
+        <li><i class="ic" data-icon="app"></i><span>Gaussian Splats</span><span class="k">20,480K</span><span class="bar" style="--a:42%; --u:88%"><i></i></span></li>
+        <li><i class="ic" data-icon="app"></i><span>Photogrammetry</span><span class="k">16,384K</span><span class="bar" style="--a:33%; --u:61%"><i></i></span></li>
+        <li><i class="ic" data-icon="app"></i><span>Mocap Pipeline</span><span class="k">12,288K</span><span class="bar" style="--a:25%; --u:47%"><i></i></span></li>
+        <li><i class="ic" data-icon="app"></i><span>Coffee</span><span class="k">4,096K</span><span class="bar" style="--a:8%; --u:100%"><i></i></span></li>
+        <li><i class="ic" data-icon="mac"></i><span>System Software</span><span class="k">3,584K</span><span class="bar" style="--a:7%; --u:80%"><i></i></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="win" id="patterns" aria-labelledby="t-patterns" data-w="330" data-h="250" data-fixed data-center data-js>
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-patterns">Control Panels</h2></header>
+    <div class="body">
+      <p class="pat-label">Desktop Pattern</p>
+      <div class="swatches" role="radiogroup" aria-label="Desktop pattern"></div>
+      <p class="pat-name" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section class="win" id="puzzle" aria-labelledby="t-puzzle" data-w="262" data-h="318" data-fixed data-center data-js>
+    <header class="tb"><button class="cb" aria-label="Close"></button><h2 class="tt" id="t-puzzle">Puzzle</h2></header>
+    <div class="body">
+      <div class="board" aria-label="Sliding puzzle. Click a tile next to the gap, or use the arrow keys."></div>
+      <div class="puz-bar"><span class="moves">0 moves</span><button class="btn small" data-cmd="shuffle">Shuffle</button></div>
+    </div>
+  </section>
 
 </main>
 
-<footer class="wrap">
-  <span>© 2026 Austin Beaulier · Los Angeles</span>
-  <span>
-    <a href="https://www.drivemetorap.com/">Drive Me to Rap</a> ·
-    <a href="https://www.textureforager.com/">Texture Forager</a> ·
-    <a href="https://www.linkedin.com/in/austin-beaulier-ab971170/">LinkedIn</a> ·
-    <a href="https://www.youtube.com/@AustinBeaulier">YouTube</a> ·
-    <a href="https://www.tiktok.com/@austinbeaulier">TikTok</a> ·
-    <a href="https://x.com/austinbeaulier">X</a>
-  </span>
-</footer>
-
-<script>
-  // Click-to-load Sketchfab embeds: page stays fast, viewer loads on demand.
-  document.querySelectorAll('.model').forEach(function (el) {
-    el.addEventListener('click', function () {
-      if (el.querySelector('iframe')) return;
-      var iframe = document.createElement('iframe');
-      iframe.src = 'https://sketchfab.com/models/' + el.dataset.uid + '/embed?autostart=1&ui_theme=dark';
-      iframe.title = el.dataset.name + ' — 3D model by Austin Beaulier';
-      iframe.setAttribute('allow', 'autoplay; fullscreen; xr-spatial-tracking');
-      iframe.setAttribute('allowfullscreen', '');
-      el.appendChild(iframe);
-    });
-  });
-
-  // Menu bar clock, System 7 style.
-  (function () {
-    var el = document.getElementById('menu-clock');
-    if (!el) return;
-    function tick() {
-      var d = new Date();
-      var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-      var h = d.getHours(), m = d.getMinutes();
-      var ap = h >= 12 ? 'PM' : 'AM';
-      h = h % 12 || 12;
-      el.textContent = days[d.getDay()] + ' ' + h + ':' + (m < 10 ? '0' : '') + m + ' ' + ap;
-    }
-    tick();
-    setInterval(tick, 30000);
-  })();
-</script>
-
+<script src="assets/desktop.js"></script>
 </body>
 </html>

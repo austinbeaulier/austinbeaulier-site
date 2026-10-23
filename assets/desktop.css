@@ -1,0 +1,379 @@
+/* austinbeaulier.com — System 7 desktop.
+   Plain CSS, no build step. Desktop behavior lives in desktop.js; without JS the
+   windows fall back to a readable single column (see the end of this file). */
+
+:root{
+  --ink:#000; --paper:#fff; --muted:#555; --link:#1d1dad;
+  --line:1.5px; --mb:22px;
+  /* Desktop pattern. Control Panels swaps this at runtime. */
+  --desk:conic-gradient(#aeaeae 25%, #b9b9b9 0 50%, #aeaeae 0 75%, #b9b9b9 0) 0 0/4px 4px;
+}
+*{box-sizing:border-box; margin:0; padding:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+html.js, html.js body{height:100%; overflow:hidden}
+body{
+  background:var(--desk); color:var(--ink);
+  font-family:Inter, Geneva, Verdana, -apple-system, sans-serif;
+  font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+.pixel{font-family:Silkscreen, "Courier New", monospace}
+a{color:var(--link)}
+a:hover{color:var(--ink)}
+img{display:block; max-width:100%}
+button{font:inherit; color:inherit; background:none; border:0; border-radius:0; cursor:default}
+:focus-visible{outline:2px dotted var(--ink); outline-offset:2px}
+
+/* ── Pixel icons (16×16 art drawn at 2×) ───────────── */
+.ic{display:block; width:32px; height:32px; flex:none}
+.ic svg{display:block; width:100%; height:100%; shape-rendering:crispEdges}
+
+/* ── Menu bar ──────────────────────────────────────── */
+.menubar{
+  position:fixed; top:0; left:0; right:0; z-index:10000; height:var(--mb);
+  display:flex; align-items:center; padding:0 6px;
+  background:var(--paper); border-bottom:var(--line) solid var(--ink);
+  font-size:13px; font-weight:600; user-select:none; -webkit-user-select:none;
+}
+.menus{display:flex; height:100%}
+.menu{position:relative; height:100%}
+.mt{height:100%; padding:0 10px; display:flex; align-items:center; font-weight:600; font-size:13px; line-height:1}
+.mt .apple{display:block}
+.menu.open > .mt{background:var(--ink); color:var(--paper)}
+.menu.open > .mt .apple path{fill:var(--paper)}
+.dd{
+  display:none; position:absolute; top:calc(100% + var(--line)); left:0; z-index:1; min-width:210px; padding:3px 0;
+  background:var(--paper); border:var(--line) solid var(--ink); box-shadow:2px 2px 0 var(--ink);
+}
+.menu.open > .dd{display:block}
+.dd [role^="menuitem"]{
+  position:relative; display:block; width:100%; padding:2px 20px 2px 24px;
+  color:var(--ink); text-align:left; text-decoration:none; white-space:nowrap;
+  font-size:13px; font-weight:600; line-height:19px;
+}
+.dd [role^="menuitem"]:hover:not(:disabled),
+.dd [role^="menuitem"]:focus-visible,
+.dd [role^="menuitem"].flash{background:var(--ink); color:var(--paper); outline:0}
+.dd [role^="menuitem"]:disabled{color:#a3a3a3}
+.dd [aria-checked="true"]::before{content:"✓"; position:absolute; left:8px}
+.dd hr{border:0; border-top:1.5px dotted #a0a0a0; margin:3px 0}
+.mb-name{display:none}
+.mb-right{margin-left:auto; display:flex; align-items:center; height:100%}
+.mb-btn{height:100%; padding:0 8px; display:flex; align-items:center}
+.mb-btn:active{background:var(--ink)}
+.mb-btn:active svg{filter:invert(1)}
+#sound-btn .mute{display:none}
+#sound-btn[aria-pressed="false"] .waves{display:none}
+#sound-btn[aria-pressed="false"] .mute{display:inline}
+.clock{height:100%; padding:0 8px 0 6px; font-size:9px; letter-spacing:.02em; white-space:nowrap}
+
+/* ── Desktop + icons ───────────────────────────────── */
+#desktop{position:fixed; top:var(--mb); left:0; right:0; bottom:0; overflow:hidden}
+.desk-icons{
+  position:absolute; top:10px; right:8px; bottom:10px; padding-bottom:84px;
+  display:grid; grid-auto-flow:column; grid-template-rows:repeat(auto-fill, 76px); grid-auto-columns:92px;
+  direction:rtl; gap:2px 4px;
+}
+.desk-icons > .icon{direction:ltr}
+.desk-icons > .trash{position:absolute; right:0; bottom:0}
+
+.icon{
+  display:flex; flex-direction:column; align-items:center; width:92px; padding:4px 2px 2px;
+  color:var(--ink); text-decoration:none; cursor:default;
+  user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;
+}
+.icon:hover{color:var(--ink)}
+.icon:focus{outline:none}
+.icon .nm{
+  margin-top:3px; padding:0 4px; max-width:90px; background:var(--paper);
+  font-size:11.5px; font-weight:500; line-height:15px; text-align:center; overflow-wrap:break-word;
+}
+.icon .kind{display:none}
+.icon.alias .nm{font-style:italic}
+.icon.sel .ic svg{filter:invert(1)}
+.icon.sel .nm{background:var(--ink); color:var(--paper)}
+.icon.sel img{filter:brightness(.5)}
+.icon:focus-visible .nm{outline:1px dotted var(--ink); outline-offset:1px}
+.icon.sel:focus-visible .nm{outline-color:var(--paper); outline-offset:-2px}
+.icon.blink .ic svg, .icon.blink img{animation:blink .36s steps(1) 1}
+@keyframes blink{0%{filter:invert(1)} 25%{filter:none} 50%{filter:invert(1)} 75%{filter:none}}
+
+/* ── Windows ───────────────────────────────────────── */
+.win{
+  position:absolute; display:none; flex-direction:column; min-width:220px; outline:none;
+  background:var(--paper); border:var(--line) solid var(--ink); box-shadow:2px 2px 0 var(--ink);
+}
+.win.open{display:flex}
+.tb{
+  position:relative; flex:0 0 21px; display:flex; align-items:center; justify-content:center;
+  border-bottom:var(--line) solid var(--ink); cursor:default; touch-action:none;
+  user-select:none; -webkit-user-select:none;
+}
+/* Six pinstripes = the active window */
+.win.active .tb::before{
+  content:""; position:absolute; left:2px; right:2px; top:4px; height:11px;
+  background:repeating-linear-gradient(to bottom, var(--ink) 0 1px, transparent 1px 2px);
+}
+.tt{
+  position:relative; z-index:1; max-width:calc(100% - 66px); padding:0 7px; background:var(--paper);
+  font:400 10px/20px Silkscreen, "Courier New", monospace; letter-spacing:.02em;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.win:not(.active) .tt{color:#8c8c8c}
+.cb, .zb{
+  position:absolute; z-index:1; top:50%; width:13px; height:13px; margin-top:-6.5px; padding:0;
+  background:var(--paper); border:var(--line) solid var(--ink); box-shadow:0 0 0 2px var(--paper);
+}
+.cb{left:8px}
+.zb{right:8px}
+.zb::after{content:""; position:absolute; left:0; top:0; width:5px; height:5px; border-right:var(--line) solid var(--ink); border-bottom:var(--line) solid var(--ink)}
+.cb:active{background:var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' shape-rendering='crispEdges'%3E%3Cpath d='M4 0h2v3H4zM4 7h2v3H4zM0 4h3v2H0zM7 4h3v2H7zM1 1h2v2H1zM7 1h2v2H7zM1 7h2v2H1zM7 7h2v2H7z'/%3E%3C/svg%3E") center/8px 8px no-repeat}
+.zb:active{background:var(--ink)}
+.win:not(.active) .cb, .win:not(.active) .zb, .win:not(.active) .grow{visibility:hidden}
+
+.body{flex:1 1 auto; min-height:0; position:relative; overflow:hidden auto; overscroll-behavior:contain}
+.doc .body{padding:18px 20px 22px}
+
+/* Bottom strip (System 7 horizontal scroll bar area) + grow box */
+.foot{
+  position:relative; flex:0 0 auto; min-height:16px; display:flex; align-items:center; justify-content:space-between; gap:12px;
+  border-top:var(--line) solid var(--ink); padding:1px 26px 1px 10px; font-size:11.5px; line-height:1.4;
+}
+.foot.bare{padding:0}
+.foot a{font-weight:600; white-space:nowrap}
+.foot span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.grow{position:absolute; right:0; bottom:0; width:16px; height:16px; border-left:var(--line) solid var(--ink); border-top:var(--line) solid var(--ink); background:var(--paper); cursor:nwse-resize; touch-action:none}
+.foot.bare .grow{border-top:0; height:100%}
+.grow::before, .grow::after{content:""; position:absolute; border:1px solid var(--ink); background:var(--paper)}
+.grow::after{left:3px; top:3px; width:6px; height:6px}
+.grow::before{left:5px; top:5px; width:7px; height:7px}
+
+/* WindowShade: double-click the title bar */
+.win.shaded{height:auto!important; min-height:0}
+.win.shaded > :not(.tb){display:none!important}
+.win.shaded .tb{border-bottom:0}
+
+/* System 7 scroll bars (Chrome, Edge, Safari) */
+.body::-webkit-scrollbar{width:16px; height:16px}
+.body::-webkit-scrollbar-track{background:conic-gradient(#9d9d9d 25%, #fff 0 50%, #9d9d9d 0 75%, #fff 0) 0 0/2px 2px; border-left:var(--line) solid var(--ink)}
+.body::-webkit-scrollbar-thumb{background:var(--paper); border:var(--line) solid var(--ink); border-right:0; min-height:20px}
+.body::-webkit-scrollbar-button:single-button{display:block; width:16px; height:16px; background:var(--paper) center/10px 10px no-repeat; border-left:var(--line) solid var(--ink)}
+.body::-webkit-scrollbar-button:single-button:vertical:decrement{border-bottom:var(--line) solid var(--ink); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 1 1 5h2.5v3.5h3V5H9z' fill='%23fff' stroke='%23000'/%3E%3C/svg%3E")}
+.body::-webkit-scrollbar-button:single-button:vertical:increment{border-top:var(--line) solid var(--ink); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 9 1 5h2.5V1.5h3V5H9z' fill='%23fff' stroke='%23000'/%3E%3C/svg%3E")}
+.body::-webkit-scrollbar-corner{background:var(--paper)}
+@supports not selector(::-webkit-scrollbar){ .body{scrollbar-color:var(--ink) #e4e4e4} }
+
+/* Drag outline + open/close zoom rectangles */
+.ghost{position:absolute; z-index:9000; border:var(--line) dotted var(--ink); pointer-events:none}
+.zr{position:absolute; z-index:9000; border:1px solid var(--ink); pointer-events:none}
+html.dragging, html.dragging *{cursor:default!important; user-select:none!important; -webkit-user-select:none!important}
+
+/* ── Folder windows ────────────────────────────────── */
+.hdr{
+  flex:none; display:flex; justify-content:space-between; gap:14px; padding:2px 10px 1px;
+  border-bottom:3px double var(--ink); font-size:11px; white-space:nowrap; overflow:hidden;
+}
+.hdr span{overflow:hidden; text-overflow:ellipsis}
+.items{display:flex; flex-wrap:wrap; align-content:flex-start; gap:12px 2px; padding:14px 8px 18px}
+.items .icon{width:100px}
+.items .icon .nm{background:transparent; max-width:98px}
+.items .icon.sel .nm{background:var(--ink)}
+.icon.scan img{width:76px; height:46px; object-fit:cover; border:var(--line) solid var(--ink); background:#ddd}
+
+/* View → by Name */
+.items.list{display:block; padding:4px 0}
+.items.list .icon{flex-direction:row; align-items:center; gap:8px; width:auto; padding:3px 12px; border-bottom:1px dotted #c4c4c4}
+.items.list .icon .ic{width:16px; height:16px}
+.items.list .icon img{width:28px; height:17px; border-width:1px}
+.items.list .icon .nm{flex:1; margin:0; max-width:none; padding:0 4px; text-align:left; font-size:12.5px}
+.items.list .icon .kind{display:block; width:120px; font-size:11.5px; color:var(--muted)}
+.items.list .icon.sel .kind{color:var(--ink)}
+
+/* ── Document windows ──────────────────────────────── */
+.tag{font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+.doc .body > .tag{margin-bottom:8px}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; min-height:30px; padding:4px 18px;
+  background:var(--paper); color:var(--ink); border:var(--line) solid var(--ink); border-radius:8px;
+  font-size:13.5px; font-weight:600; line-height:1.2; text-decoration:none; white-space:nowrap; cursor:pointer;
+}
+.btn:hover, .btn:active{background:var(--ink); color:var(--paper)}
+/* System 7 default button: the thick ring marks the one Return presses */
+.btn.default{box-shadow:0 0 0 2px var(--paper), 0 0 0 4.5px var(--ink); margin:3px}
+.btn.small{min-height:24px; padding:2px 12px; font-size:12px}
+.cta{display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-top:16px}
+
+/* Read Me */
+.who{display:flex; align-items:center; gap:18px}
+.who img{width:116px; height:116px; flex:none; object-fit:cover; border:var(--line) solid var(--ink)}
+.eyebrow{font-family:Silkscreen, monospace; font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:#3c3c3c}
+.who h1{margin-top:6px; font:700 30px/1.02 Silkscreen, "Courier New", monospace; letter-spacing:-.01em}
+.pitch{margin-top:8px; font-size:15px; line-height:1.45; color:#222}
+.bio{margin-top:16px; color:#333}
+.stats{list-style:none; display:grid; grid-template-columns:repeat(4, 1fr); margin:16px 0 18px; border:var(--line) solid var(--ink)}
+.stats li{display:flex; flex-direction:column; gap:3px; padding:8px 10px}
+.stats li + li{border-left:1px dotted #777}
+.stats b{font:700 19px/1.1 Silkscreen, monospace}
+.stats .approx{position:relative; top:-.2em; margin-right:2px; font-family:Inter, sans-serif}   /* Silkscreen's tilde reads as a minus */
+.stats span{font-size:11px; line-height:1.3; color:var(--muted)}
+.now{list-style:none; margin-top:4px}
+.now li{padding:7px 0; border-bottom:1px dotted #999; font-size:13.5px; color:#333}
+.now li:last-child{border-bottom:0}
+.now b{color:var(--ink)}
+.now a{font-weight:600; white-space:nowrap}
+.tip, .note{display:flex; align-items:flex-start; gap:8px; margin-top:18px; font-size:12.5px; color:var(--muted)}
+.tip a{font-weight:600}
+.note b{color:var(--ink)}
+.tip .i, .note .i{flex:none; width:16px; height:16px; margin-top:1px; border:var(--line) solid var(--ink); border-radius:50%; font:700 10px/13px Georgia, serif; text-align:center; color:var(--ink)}
+.tip-touch{display:none}
+@media (hover:none){ .tip-desk{display:none} .tip-touch{display:inline} }
+.explore{display:none}
+
+/* Credits */
+.credit-group{margin-top:14px}
+.credit-group:first-of-type{margin-top:4px}
+.role{font-weight:700}
+.titles{list-style:none; columns:2; column-gap:22px; margin-top:4px; font-size:13.5px; color:#222}
+.titles li{padding:3px 0; border-bottom:1px dotted #bbb; break-inside:avoid}
+.small{margin-top:16px; font-size:12.5px; color:var(--muted)}
+
+/* Contact + Press */
+.hello{font:700 28px/1.1 Silkscreen, "Courier New", monospace}
+.sub{margin-top:6px; font-size:13px; color:var(--muted)}
+.links{list-style:none; margin-top:20px; border-top:1px dotted #888}
+.links a{display:flex; justify-content:space-between; gap:12px; padding:7px 4px; border-bottom:1px dotted #888; color:var(--ink); text-decoration:none; font-size:13.5px; font-weight:600}
+.links a span{color:var(--muted); font-weight:400}
+.links a:hover{background:var(--ink); color:var(--paper)}
+.links a:hover span{color:#d0d0d0}
+.rows{list-style:none}
+.rows li{display:flex; justify-content:space-between; align-items:baseline; gap:14px; padding:9px 0; border-bottom:1px dotted #999; font-size:13.5px}
+.rows li:last-child{border-bottom:0}
+.rows li span{color:var(--muted)}
+.rows li a{font-weight:600; white-space:nowrap}
+
+/* App + film info */
+.app-head{display:flex; align-items:center; gap:14px}
+.app-head .box{width:64px; height:64px; flex:none; display:grid; place-items:center; border:var(--line) solid var(--ink)}
+.app-head .box .ic{width:48px; height:48px}
+.app-head .name{font-size:21px; font-weight:700; letter-spacing:-.015em; line-height:1.15}
+.meta{margin-top:4px; font-family:Silkscreen, monospace; font-size:10px; letter-spacing:.02em; color:var(--muted)}
+.what{margin-top:14px; font-size:14.5px; color:#222}
+.more{display:inline-block; margin-top:14px; font-size:13px; font-weight:600}
+
+/* Windows that run a web app or a 3D viewer */
+.app .body, .viewer .body{overflow:hidden; background:#111}
+.frame{position:absolute; inset:0}
+.frame iframe{position:absolute; inset:0; z-index:1; width:100%; height:100%; border:0; display:block}
+.frame .loading{position:absolute; inset:0; display:grid; place-items:center; color:#bbb; font:400 10px Silkscreen, monospace}
+.shield{position:absolute; inset:0; z-index:2; display:none}
+.win:not(.active) .shield, html.dragging .shield{display:block}
+
+/* About This Macintosh */
+.about-top{display:grid; grid-template-columns:auto 1fr; gap:4px 14px; align-items:center; padding:14px 16px 12px; border-bottom:3px double var(--ink)}
+.about-top .ic{width:48px; height:48px; grid-row:span 2}
+.about-name{font-size:15px; font-weight:700}
+.about-top p{font-size:11.5px; color:var(--muted)}
+.about-mem{grid-column:2; display:grid; grid-template-columns:auto auto; justify-content:start; gap:0 10px; font-size:11.5px}
+.about-mem dd{font-variant-numeric:tabular-nums}
+.mem{list-style:none; padding:10px 16px 14px}
+.mem li{display:grid; grid-template-columns:16px 1fr auto 150px; align-items:center; gap:8px; padding:2px 0; font-size:12px}
+.mem .ic{width:16px; height:16px}
+.mem .k{font-variant-numeric:tabular-nums; text-align:right}
+/* Bar length = memory allocated; black fill = memory in use */
+.mem .bar{height:11px}
+.mem .bar i{display:block; height:100%; width:var(--a); border:1px solid var(--ink); background:linear-gradient(to right, var(--ink) var(--u), var(--paper) 0)}
+
+/* Control Panels: desktop patterns */
+.pat-label{padding:14px 18px 0; font-weight:700; font-size:12.5px}
+.swatches{display:grid; grid-template-columns:repeat(4, 56px); justify-content:center; gap:12px; padding:12px 16px 6px}
+.swatch{width:56px; height:40px; border:var(--line) solid var(--ink); cursor:pointer}
+.swatch[aria-checked="true"]{outline:2px solid var(--ink); outline-offset:2px}
+.pat-name{text-align:center; font-size:12px; color:var(--muted); padding-bottom:12px}
+
+/* Puzzle */
+#puzzle .body{display:flex; flex-direction:column; align-items:center; gap:10px; padding:12px}
+.board{position:relative; width:224px; height:224px; flex:none; border:var(--line) solid var(--ink); background:var(--ink); box-sizing:content-box}
+.tile{position:absolute; padding:0; border:1px solid var(--ink); background-repeat:no-repeat; background-color:#666; cursor:pointer; transition:left .07s linear, top .07s linear}
+.tile span{position:absolute; right:3px; bottom:1px; font:700 9px/1 Silkscreen, monospace; color:#fff; text-shadow:1px 1px 0 #000}
+.board.solved .tile{border-color:transparent}
+.board.solved .tile span{display:none}
+.puz-bar{display:flex; justify-content:space-between; align-items:center; width:224px; font-size:11.5px}
+
+/* ── Alerts ────────────────────────────────────────── */
+.modal{position:fixed; inset:0; z-index:20000; display:flex; justify-content:center; align-items:flex-start; padding:16vh 16px 0}
+.alert{width:100%; max-width:430px; padding:3px; background:var(--paper); border:var(--line) solid var(--ink); box-shadow:2px 2px 0 var(--ink)}
+.alert-in{display:grid; grid-template-columns:auto 1fr; gap:6px 16px; padding:16px 16px 14px; border:3px solid var(--ink)}
+.alert-in > .ic, .alert-in > img{width:32px; height:32px}
+.alert-in > img{object-fit:cover; border:1px solid var(--ink)}
+.alert-msg{padding-top:5px; font-size:13.5px; line-height:1.5}
+.alert-msg b{display:block; margin-bottom:4px}
+.alert-msg .kv{display:block; font-size:12.5px}
+.alert-msg .kv i{font-style:normal; display:inline-block; min-width:80px; font-weight:600}
+.btns{grid-column:1 / -1; display:flex; justify-content:flex-end; gap:14px; margin-top:12px}
+.btns .btn{min-width:78px}
+
+/* ── Startup + shutdown ────────────────────────────── */
+#boot{display:none}
+html.booting #boot{display:block; position:fixed; inset:0; z-index:30000; background:var(--desk); cursor:default}
+html.booting .menubar, html.booting #desktop{visibility:hidden}
+.boot-happy, .boot-welcome{position:absolute; inset:0; display:none; place-items:center}
+html.booting #boot:not(.s2) .boot-happy{display:grid}
+#boot.s2 .boot-welcome{display:grid}
+.boot-happy .ic{width:64px; height:64px}
+.welcome{display:flex; align-items:center; gap:18px; padding:22px 36px 22px 28px; background:var(--paper); border:var(--line) solid var(--ink); box-shadow:0 0 0 3px var(--paper), 0 0 0 4.5px var(--ink), 3px 3px 0 4.5px var(--ink)}
+.welcome .ic{width:48px; height:48px}
+.welcome p{display:flex; flex-direction:column; gap:5px}
+.welcome b{font:700 17px/1 Silkscreen, monospace}
+.welcome span{font-size:14px; font-weight:600}
+.parade{position:absolute; left:14px; bottom:12px; display:flex; gap:8px}
+.shutdown{position:fixed; inset:0; z-index:30000; display:grid; place-items:center; padding:16px; background:#000}
+
+/* ── Phones: icons in a grid, one full-screen window at a time ── */
+@media (max-width:767px){
+  :root{--mb:30px}
+  .mt{padding:0 12px; font-size:14px}
+  .menu[data-menu="edit"], .menu[data-menu="view"]{display:none}
+  .dd{min-width:230px}
+  .dd [role^="menuitem"]{padding:8px 20px 8px 26px; font-size:14px}
+  .desk-icons{
+    top:16px; left:6px; right:6px; bottom:auto; padding-bottom:0;
+    grid-auto-flow:row; grid-template-rows:none; grid-template-columns:repeat(4, 1fr); grid-auto-columns:auto;
+    direction:ltr; gap:18px 0;
+  }
+  .desk-icons > .trash{position:static}
+  .icon{width:auto}
+  .icon .nm{font-size:12px}
+  .win{left:6px!important; top:6px!important; width:calc(100% - 12px)!important; height:calc(100% - 12px)!important; min-width:0}
+  .zb, .grow{display:none}
+  .foot.bare{display:none}
+  .foot{padding-right:10px}
+  .doc .body{padding:18px 16px 24px}
+  .items{gap:16px 0; padding:16px 4px}
+  .items .icon{width:33.33%}
+  .who{gap:14px}
+  .who img{width:84px; height:84px}
+  .who h1{font-size:23px}
+  .stats{grid-template-columns:repeat(2, 1fr)}
+  .stats li:nth-child(3){border-left:0}
+  .stats li:nth-child(n+3){border-top:1px dotted #777}
+  .titles{columns:1}
+  .explore{display:flex; width:100%; margin-top:20px; min-height:42px}
+  .btn{min-height:40px}
+  .about-top{grid-template-columns:auto 1fr}
+  .mem li{grid-template-columns:16px 1fr auto 70px}
+  .board{width:min(78vw, 320px); height:min(78vw, 320px)}
+  .puz-bar{width:min(78vw, 320px)}
+  .modal{padding-top:12vh}
+}
+
+/* ── Without JavaScript: one readable column ───────── */
+html:not(.js) .menus, html:not(.js) .mb-right, html:not(.js) .cb, html:not(.js) .zb,
+html:not(.js) .win[data-js], html:not(.js) .ic, html:not(.js) .frame, html:not(.js) .explore,
+html:not(.js) .desk-icons > .trash{display:none}
+html:not(.js) .menubar{position:sticky}
+html:not(.js) .mb-name{display:block; color:var(--ink); text-decoration:none; font-size:11px}
+html:not(.js) #desktop{position:static; display:flex; flex-direction:column; align-items:center; gap:20px; padding:20px 16px 48px}
+html:not(.js) .desk-icons{position:static; display:flex; flex-wrap:wrap; justify-content:center; padding:0; gap:4px}
+html:not(.js) .win{position:static; display:flex; width:100%; max-width:720px}
+html:not(.js) .tb::before{content:""; position:absolute; left:2px; right:2px; top:4px; height:11px; background:repeating-linear-gradient(to bottom, var(--ink) 0 1px, transparent 1px 2px)}
+html:not(.js) .app .body{display:none}
