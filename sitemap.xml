@@ -33,4 +33,11 @@
       <image:loc>https://austinbeaulier.com/roadstergame/preview.jpg</image:loc>
     </image:image>
   </url>
+  <url>
+    <loc>https://austinbeaulier.com/starship/</loc>
+    <lastmod>2026-11-17</lastmod>
+    <image:image>
+      <image:loc>https://austinbeaulier.com/starship/preview.jpg</image:loc>
+    </image:image>
+  </url>
 </urlset>

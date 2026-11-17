@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tower Catch — Free 3D Rocket Catch Game in Your Browser</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Unofficial 3D fan game: fly a Starship-style rocket down from altitude and set it on the launch tower's catch arms.">
+<meta name="author" content="Austin Beaulier">
+<link rel="canonical" href="https://austinbeaulier.com/starship/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Austin Beaulier">
+<meta property="og:title" content="Tower Catch — a 3D rocket catch game">
+<meta property="og:description" content="Fly a rocket down and catch it in the launch tower's arms. Free, in your browser.">
+<meta property="og:url" content="https://austinbeaulier.com/starship/">
+<meta property="og:image" content="https://austinbeaulier.com/starship/preview.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:alt" content="A black and steel rocket descending on its engines between the open catch arms of a dark lattice launch tower under an overcast sky in Tower Catch">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tower Catch — a 3D rocket catch game">
+<meta name="twitter:description" content="Fly a rocket down and catch it in the launch tower's arms. Free, in your browser.">
+<meta name="twitter:image" content="https://austinbeaulier.com/starship/preview.jpg">
+<meta name="twitter:image:alt" content="A black and steel rocket descending on its engines between the open catch arms of a dark lattice launch tower under an overcast sky in Tower Catch">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Tower Catch",
+  "url": "https://austinbeaulier.com/starship/",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Any (web browser)",
+  "browserRequirements": "Requires WebGL and JavaScript",
+  "description": "An unofficial 3D fan game: fly a Starship-style rocket down from altitude and set it on the launch tower's catch arms.",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+  "author": {"@type": "Person", "name": "Austin Beaulier", "url": "https://austinbeaulier.com"}
+}
+</script>
+<meta name="theme-color" content="#7a8187">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Saira+Condensed:wght@500;700;800&display=swap">
+<style>
+/* Layout: one full-bleed 3D view (overcast coastal sky), a telemetry strip pinned to the top with a
+   top-view radar under it, thumb controls in the bottom corners, one card for title and results. */
+:root {
+  color-scheme: dark;
+  --sky-top: #7a8187;
+  --sky-low: #b7bbbc;
+  --steel: #23272b;
+  --ink: #0f1113;
+  --panel: rgba(15, 17, 19, 0.78);
+  --line: rgba(238, 241, 242, 0.16);
+  --paper: #eef1f2;
+  --dim: #a9b0b5;
+  --plume: #ff8a5b;
+  --go: #7ee0a1;
+  --warn: #ffc857;
+  --bad: #ff6b5e;
+  --display: "Saira Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+html, body { height: 100%; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: linear-gradient(var(--sky-top), var(--sky-low));
+  color: var(--paper);
+  font-family: var(--data);
+  font-size: 14px;
+  overflow: hidden;
+  position: relative;
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+#view { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#flash { position: absolute; inset: 0; background: #ffecd2; opacity: 0; pointer-events: none; }
+
+.layer {
+  position: absolute; inset: 0;
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  pointer-events: none;
+  display: flex; flex-direction: column;
+}
+
+/* telemetry */
+#hud { display: flex; flex-direction: column; gap: 6px; max-width: 560px; width: 100%; margin: 0 auto; }
+.cells { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.cell {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 4px;
+  padding: 5px 8px 6px; min-width: 0;
+}
+.cell .k { font-size: 10px; letter-spacing: 0.12em; color: var(--dim); text-transform: uppercase; white-space: nowrap; }
+.cell .v { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cell .v small { font-size: 10px; font-weight: 400; color: var(--dim); margin-left: 2px; }
+.cell.ok .v { color: var(--go); }
+.cell.hot .v { color: var(--bad); }
+.strip {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 4px;
+  padding: 6px 8px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.strip .lbl { color: var(--dim); }
+#fuelbar { flex: 1; min-width: 40px; height: 8px; background: rgba(238,241,242,0.14); border-radius: 2px; overflow: hidden; }
+#fuelfill { height: 100%; width: 100%; background: var(--plume); transform-origin: left center; }
+#fuelfill.low { background: var(--bad); }
+#mute {
+  pointer-events: auto; font: inherit; color: var(--paper); background: none;
+  border: 1px solid var(--line); border-radius: 3px; padding: 2px 6px; cursor: pointer;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+#mute:focus-visible, .btn:focus-visible, .pad:focus-visible { outline: 2px solid var(--warn); outline-offset: 2px; }
+#radar-box {
+  align-self: flex-start; display: flex; flex-direction: column; gap: 3px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 5px;
+}
+#radar-box .k { font-size: 9px; letter-spacing: 0.12em; color: var(--dim); text-transform: uppercase; }
+#radar { width: 104px; height: 104px; display: block; }
+body.carded #radar-box { visibility: hidden; }
+#cue {
+  position: absolute; left: 0; right: 0; top: 34%; text-align: center; pointer-events: none;
+  font-family: var(--display); font-weight: 800; font-size: 40px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--plume); text-shadow: 0 2px 12px rgba(15,17,19,0.7); animation: cue 0.5s steps(2) infinite;
+}
+@keyframes cue { 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { #cue { animation: none; } }
+.btn.alt { background: none; color: var(--paper); border: 1px solid var(--line); font-size: 16px; padding: 8px 16px; }
+
+/* card */
+#card-wrap { flex: 1; display: flex; align-items: flex-end; justify-content: center; min-height: 0; padding-bottom: 6px; }
+@media (min-width: 900px) { #card-wrap { align-items: center; justify-content: flex-start; padding-left: 3vw; } }
+#card {
+  pointer-events: auto;
+  width: min(420px, 100%);
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+  padding: 20px 22px 22px;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  display: flex; flex-direction: column; gap: 12px;
+}
+#card .eyebrow { font-size: 11px; letter-spacing: 0.16em; color: var(--dim); text-transform: uppercase; }
+#card h1 {
+  margin: 0; font-family: var(--display); font-weight: 800; font-size: 54px; line-height: 0.92;
+  letter-spacing: 0.01em; text-transform: uppercase; text-wrap: balance;
+}
+#card h1.good { color: var(--go); }
+#card h1.fail { color: var(--bad); }
+#card p { margin: 0; line-height: 1.5; color: var(--paper); font-size: 13px; }
+#card dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; font-size: 13px; font-variant-numeric: tabular-nums; }
+#card dt { color: var(--dim); }
+#card dd { margin: 0; text-align: right; }
+#card dl .sum { border-top: 1px solid var(--line); padding-top: 6px; font-weight: 600; color: var(--paper); }
+.limits { display: flex; flex-wrap: wrap; gap: 6px; }
+.limits span { border: 1px solid var(--line); border-radius: 3px; padding: 3px 7px; font-size: 11px; letter-spacing: 0.06em; white-space: nowrap; }
+.btn {
+  font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink); background: var(--plume); border: 0; border-radius: 4px; padding: 10px 16px; cursor: pointer;
+}
+.btn:hover { filter: brightness(1.08); }
+.keys { font-size: 11px; color: var(--dim); line-height: 1.6; }
+.keys b { color: var(--paper); font-weight: 500; }
+
+/* thumb controls */
+#pads { display: none; justify-content: space-between; align-items: flex-end; gap: 12px; padding-bottom: 8px; margin-top: auto; }
+body.touch #pads { display: flex; }
+body.carded #pads { display: none; }
+#stick {
+  pointer-events: auto; touch-action: none; position: relative;
+  width: 128px; height: 128px; border-radius: 50%;
+  background: var(--panel); border: 1px solid var(--line);
+}
+#stick::before { content: ""; position: absolute; inset: 50% 14px auto; height: 1px; background: var(--line); }
+#stick::after { content: ""; position: absolute; inset: 14px auto 14px 50%; width: 1px; background: var(--line); }
+#knob {
+  position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%;
+  background: var(--paper); opacity: 0.85; z-index: 1;
+}
+.pad {
+  pointer-events: auto; touch-action: none;
+  background: var(--panel); border: 1px solid var(--plume); color: var(--paper);
+  font-family: var(--display); font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  width: 108px; height: 108px; border-radius: 50%; font-size: 22px; letter-spacing: 0.1em; text-transform: uppercase;
+}
+.pad.on { background: var(--plume); color: var(--ink); }
+@media (max-width: 420px) {
+  .cell .v { font-size: 15px; }
+  #card h1 { font-size: 44px; }
+}
+</style>
+</head><body>
+
+<canvas id="view" aria-label="3D game view: a rocket descending toward a catch tower"></canvas>
+<div id="flash"></div>
+<div id="cue" hidden>Burn now</div>
+
+<div class="layer">
+  <div id="hud">
+    <div class="cells">
+      <div class="cell" id="c-alt"><div class="k">Above arms</div><div class="v"><span id="v-alt">0</span><small>m</small></div></div>
+      <div class="cell" id="c-vy"><div class="k">Descent</div><div class="v"><span id="v-vy">0.0</span><small>m/s</small></div></div>
+      <div class="cell" id="c-vx"><div class="k">Drift</div><div class="v"><span id="v-vx">0.0</span><small>m/s</small></div></div>
+      <div class="cell" id="c-tilt"><div class="k">Tilt</div><div class="v"><span id="v-tilt">0</span><small>°</small></div></div>
+    </div>
+    <div class="strip">
+      <span class="lbl">Fuel</span>
+      <div id="fuelbar"><div id="fuelfill"></div></div>
+      <span><span class="lbl">Wind</span> <span id="v-wind">calm</span></span>
+      <span><span class="lbl">Flt</span> <span id="v-level">1</span></span>
+      <span><span class="lbl">Pts</span> <span id="v-score">0</span></span>
+      <button id="mute" type="button" aria-pressed="false" aria-label="Mute sound">Mute</button>
+    </div>
+    <div id="radar-box"><div class="k">Top view</div><canvas id="radar" width="208" height="208" aria-label="Top view of the ship relative to the arms"></canvas></div>
+  </div>
+
+  <div id="card-wrap">
+    <div id="card" role="dialog" aria-live="polite"></div>
+  </div>
+
+  <div id="pads">
+    <div id="stick" role="group" aria-label="Tilt stick"><div id="knob"></div></div>
+    <button class="pad" id="p-burn" type="button" aria-label="Fire engines">Burn</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cv = $('view');
+
+// ---------- world (metres, y up; tower at origin, arms reach along +x) ----------
+const G = 9.81, THRUST = 19, KD = 0.0015;
+const R = 4.5, HALF = 25, PIN = 12;            // hull radius, half length, catch-pin height above centre
+const TOWER = { half: 7, h: 146 };
+const ARM = { y: 104, x0: 7, x1: 46, pz: 5.8, hw: 1.1, open: 20 * Math.PI / 180 };
+const TARGET_X = 27;
+const LIM = { vy: 12, vh: 8, tilt: 20 * Math.PI / 180 };
+const SIDE = 11;                                // assisted top sideways speed, m/s
+let assist = true;                              // assisted: side thrusters move the ship directly and stop its drift
+function setAssist(on) {
+  assist = on;
+  LIM.vy = on ? 12 : 10; LIM.vh = on ? 8 : 6; LIM.tilt = (on ? 20 : 14) * Math.PI / 180;
+}
+const LEAN = 0.42;                              // full stick leans the ship this far (radians); released, it rights itself
+const STEP = 1 / 120;
+const PSI = 25 * Math.PI / 180;                // camera azimuth during flight; controls are relative to it
+const CP = Math.cos(PSI), SP = Math.sin(PSI);
+
+let W = 0, H = 0;
+let mode = 'title';                             // title | playing | caught | lost
+let level = 1, score = 0, best = 0;
+let ship, fuelMax = 13, windBase = { x: 0, z: 0 }, wind = { x: 0, z: 0 }, gustPhase = 0, t = 0;
+let particles = [], debris = [];
+let shake = 0, flash = 0, armDip = 0, armVel = 0, armAngle = ARM.open, resultTimer = 0, pendingResult = null;
+const input = { jx: 0, jy: 0, burn: false };   // jx: screen right, jy: away from camera
+const keys = { l: false, r: false, u: false, d: false };
+const stick = { x: 0, y: 0 };
+
+try { best = +localStorage.getItem('towercatch.best') || 0; } catch (e) {}
+
+const gap = x => ARM.pz - ARM.hw + (x - ARM.x0) * Math.tan(armAngle);   // half-gap between the arms' inner faces at x
+function axisOf(s) {
+  const tx = Math.tan(s.ax), tz = Math.tan(s.az), n = Math.hypot(tx, 1, tz);
+  return { x: tx / n, y: 1 / n, z: tz / n };
+}
+function hangingShip() {
+  return { x: TARGET_X, y: ARM.y - PIN, z: 0, vx: 0, vy: 0, vz: 0, ax: 0, az: 0, wx: 0, wz: 0, fuel: 1, burning: false, dead: false, hx: TARGET_X, hz: 0 };
+}
+ship = hangingShip();
+armAngle = 0;
+
+function newFlight() {
+  const n = Math.min(level, 9);
+  // early flights arrive from the open side of the arms; later ones from anywhere
+  const phi = level < (assist ? 7 : 4) ? (Math.random() - 0.5) * 2.0 : Math.random() * 6.283;
+  const dist = assist ? 45 + Math.random() * 30 + n * 4 : 90 + Math.random() * 45 + n * 6;
+  const dx = Math.cos(phi), dz = Math.sin(phi), sp = 8 + n * 1.3, lean = 0.1;
+  fuelMax = Math.max(8.5, 16.5 - level * 0.7);
+  const wa = Math.random() * 6.283, wm = level === 1 ? 0 : Math.min(0.2 + 0.25 * level, 2.5) * (0.5 + Math.random() * 0.5);
+  windBase = { x: Math.cos(wa) * wm, z: Math.sin(wa) * wm };
+  gustPhase = Math.random() * 6.28;
+  ship = {
+    x: TARGET_X + dx * dist, y: 440 + Math.random() * 40, z: dz * dist,
+    vx: -dx * sp, vy: -(26 + n * 3), vz: -dz * sp,
+    ax: dx * lean, az: dz * lean, wx: 0, wz: 0,
+    fuel: fuelMax, burning: false, dead: false, hx: 0, hz: 0
+  };
+  particles = []; clearDebris();
+  armDip = 0; armVel = 0; armAngle = ARM.open; shake = 0; flash = 0; pendingResult = null;
+  mode = 'playing';
+  hideCard();
+  snapCamera();
+}
+
+// ---------- simulation ----------
+function step(dt) {
+  t += dt;
+  const gust = 1 + 0.35 * Math.sin(t * 0.9 + gustPhase);
+  wind.x = windBase.x * gust; wind.z = windBase.z * gust;
+  const s = ship;
+
+  if (mode === 'playing') {
+    const prevPy = s.y + PIN * axisOf(s).y;
+    const jx = clamp(input.jx, -1, 1), jy = clamp(input.jy, -1, 1);
+    const rx = jx * CP - jy * SP, rz = -jx * SP - jy * CP;     // screen-relative stick to world tilt rates
+    const lean = assist ? LEAN * 0.55 : LEAN;
+    s.wx += ((rx * lean - s.ax) * 7 - s.wx * 4.5) * dt;       // the stick sets how far the ship leans
+    s.wz += ((rz * lean - s.az) * 7 - s.wz * 4.5) * dt;
+    s.ax += s.wx * dt; s.az += s.wz * dt;
+    if (Math.abs(s.ax) > 1) { s.ax = clamp(s.ax, -1, 1); s.wx = 0; }
+    if (Math.abs(s.az) > 1) { s.az = clamp(s.az, -1, 1); s.wz = 0; }
+    const u = axisOf(s);
+    const burning = input.burn && s.fuel > 0;
+    const sp = Math.hypot(s.vx, s.vy, s.vz);
+    let ax = wind.x - KD * s.vx * sp, ay = -G - KD * s.vy * sp, az = wind.z - KD * s.vz * sp;
+    if (assist) {                                             // side thrusters hold the sideways speed the stick asks for; released, they stop the ship
+      // close to the arms the top speed drops below the drift limit, and the ship is eased onto the centreline between them
+      const alt = s.y + PIN * u.y - ARM.y, px = s.x + PIN * u.x, pz = s.z + PIN * u.z, top = clamp(alt / 12, 5, SIDE);
+      let tz = rz * top;
+      if (alt < 70 && alt > -2 && px > ARM.x0 + R && px < ARM.x1 && Math.abs(pz) < 16) tz = clamp(tz - pz * 0.7, -5, 5);
+      ax += (rx * top - s.vx) * 2.2; az += (tz - s.vz) * 2.2;
+    }
+    if (burning) {
+      ax += u.x * THRUST; ay += u.y * THRUST; az += u.z * THRUST;
+      s.fuel = Math.max(0, s.fuel - dt);
+      emitExhaust(s, u);
+    }
+    s.burning = burning;
+    s.vx += ax * dt; s.vy += ay * dt; s.vz += az * dt;
+    s.x += s.vx * dt; s.y += s.vy * dt; s.z += s.vz * dt;
+    collide(prevPy);
+  } else if (mode === 'caught') {
+    // arms close on the hull and centre it; the ship swings on its pins and the arms flex
+    armAngle += (0 - armAngle) * (1 - Math.exp(-5 * dt));
+    s.hz += (0 - s.hz) * (1 - Math.exp(-4 * dt));
+    s.wx += (-7 * s.ax - 2.6 * s.wx) * dt; s.ax += s.wx * dt;
+    s.wz += (-7 * s.az - 2.6 * s.wz) * dt; s.az += s.wz * dt;
+    armVel += (-60 * armDip - 7 * armVel) * dt; armDip += armVel * dt;
+    const u = axisOf(s);
+    s.x = s.hx - PIN * u.x; s.y = ARM.y + armDip - PIN * u.y; s.z = s.hz - PIN * u.z;
+    if (Math.random() < 0.25) puff(s.x + (Math.random() - 0.5) * 6, s.y - HALF + 2, s.z + (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6, -4 - Math.random() * 5, (Math.random() - 0.5) * 6, 1.2, 2);
+  }
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.life -= dt;
+    if (p.life <= 0) { particles[i] = particles[particles.length - 1]; particles.pop(); continue; }
+    p.vy -= (p.type === 1 ? 3 : 1) * dt; p.vx += wind.x * dt; p.vz += wind.z * dt;
+    p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
+    if (p.y < 0.5) { p.y = 0.5; p.vy = 0; p.vx *= 0.9; p.vz *= 0.9; }
+  }
+  for (const d of debris) {
+    if (!d.on) continue;
+    d.vy -= G * dt; d.x += d.vx * dt; d.y += d.vy * dt; d.z += d.vz * dt; d.r += d.w * dt;
+    if (d.y < 1) { d.y = 1; d.vy *= -0.3; d.vx *= 0.6; d.vz *= 0.6; d.w *= 0.5; }
+  }
+  shake = Math.max(0, shake - dt * 1.6);
+  flash = Math.max(0, flash - dt * 2.5);
+
+  if (pendingResult) {
+    resultTimer -= dt;
+    if (resultTimer <= 0) { const r = pendingResult; pendingResult = null; r(); }
+  }
+}
+
+function collide(prevPy) {
+  const s = ship, u = axisOf(s);
+  const px = s.x + PIN * u.x, py = s.y + PIN * u.y, pz = s.z + PIN * u.z;
+  const tilt = Math.acos(clamp(u.y, -1, 1)), vh = Math.hypot(s.vx, s.vz);
+
+  // the catch pins reaching arm height
+  if (prevPy > ARM.y && py <= ARM.y && px > ARM.x0 && px < ARM.x1 + R && Math.abs(pz) < gap(px) + 3) {
+    if (px < ARM.x0 + R) return lose('Hit the tower', 'The hull struck the tower on the way into the arms.');
+    if (px > ARM.x1 - 1) return lose('Clipped the arm tips', 'Too far out. The pins have to come down inside the arms.');
+    if (Math.abs(pz) > gap(px) - R + (assist ? 2.6 : 1.2)) return lose('Hit an arm', 'Off to one side. The ship has to come down between the two arms.');
+    if (tilt > LIM.tilt) return lose('Came in crooked', 'Tilt was ' + (tilt * 57.3).toFixed(0) + '° at the arms. The limit is ' + (LIM.tilt * 57.3).toFixed(0) + '°.');
+    if (-s.vy > LIM.vy) return lose('Too fast', 'Descent was ' + (-s.vy).toFixed(1) + ' m/s at the arms. The limit is ' + LIM.vy + ' m/s.');
+    if (s.vy > 2) return lose('Hit the arms', 'The ship was still climbing when it met the arms.');
+    if (vh > LIM.vh) return lose('Too much drift', 'Sideways speed was ' + vh.toFixed(1) + ' m/s at the arms. The limit is ' + LIM.vh + ' m/s.');
+    return caught(px, pz);
+  }
+
+  for (let k = -HALF; k <= HALF; k += 5) {
+    const qx = s.x + k * u.x, qy = s.y + k * u.y, qz = s.z + k * u.z;
+    if (qy < 0.5) {
+      if (Math.abs(s.vy) < 4 && tilt < 0.15)
+        return lose('No legs', 'A gentle touchdown, but this ship has no landing legs. It has to be caught.');
+      return lose('Hit the ground', 'The ship missed the arms and came down on the pad.');
+    }
+    if (Math.abs(qx) < TOWER.half + R - 0.6 && Math.abs(qz) < TOWER.half + R - 0.6 && qy < TOWER.h + 3)
+      return lose('Hit the tower', 'The hull struck the tower.');
+    if (Math.abs(qy - ARM.y) < 2.6 && qx > ARM.x0 && qx < ARM.x1 + R - 1) {
+      const g = gap(qx), az = Math.abs(qz);
+      if (k > PIN + 1 && py < ARM.y && az < g + 2)
+        return lose('Under the arms', 'The pins were already below the arms. Come down onto them from above.');
+      if (az > g - R + (assist ? 2.8 : 1.4) && az < g + 2 * ARM.hw + R - 0.8)
+        return lose('Hit an arm', 'The hull struck one of the arms. Come down between them.');
+    }
+  }
+  if (Math.hypot(s.x - TARGET_X, s.z) > 900 || s.y > 1500)
+    return lose('Out of range', 'The ship left the landing corridor.', true);
+}
+
+function caught(px, pz) {
+  const s = ship;
+  const fuelPts = Math.round(s.fuel / fuelMax * 1000);
+  const softPts = Math.round((1 - clamp(-s.vy / LIM.vy, 0, 1)) * 400 + (1 - clamp(Math.hypot(s.vx, s.vz) / LIM.vh, 0, 1)) * 200);
+  const aimPts = Math.round((1 - clamp(Math.hypot(px - TARGET_X, pz) / 17, 0, 1)) * 400);
+  const base = 500 + level * 250;
+  const total = base + fuelPts + softPts + aimPts;
+  score += total;
+  if (score > best) { best = score; try { localStorage.setItem('towercatch.best', String(best)); } catch (e) {} }
+  armVel = s.vy * 0.5; armDip = 0;
+  s.hx = px; s.hz = pz; s.burning = false; s.vx = s.vy = s.vz = 0;
+  mode = 'caught';
+  if (!reduceMotion) shake = 0.25;
+  sfxCatch();
+  const flown = level;
+  resultTimer = 1.5;
+  pendingResult = () => showCard(
+    '<div class="eyebrow">Flight ' + flown + ' · arms closed</div>' +
+    '<h1 class="good">Caught</h1>' +
+    '<dl><dt>Catch</dt><dd>' + base + '</dd>' +
+    '<dt>Fuel left</dt><dd>' + fuelPts + '</dd>' +
+    '<dt>Soft contact</dt><dd>' + softPts + '</dd>' +
+    '<dt>On centre</dt><dd>' + aimPts + '</dd>' +
+    '<dt class="sum">This flight</dt><dd class="sum">' + total + '</dd>' +
+    '<dt>Total</dt><dd>' + score + '</dd><dt>Best</dt><dd>' + best + '</dd></dl>' +
+    '<p>Next flight: less fuel, more wind, faster entry.</p>' +
+    '<button class="btn" id="go" type="button">Next flight</button>', () => { level++; newFlight(); });
+}
+
+function lose(title, why, quiet) {
+  const s = ship;
+  s.dead = true; s.burning = false;
+  mode = 'lost';
+  if (!quiet) { explode(s); sfxBoom(); }
+  resultTimer = quiet ? 0.2 : 1.4;
+  pendingResult = () => showCard(
+    '<div class="eyebrow">Flight ' + level + ' · vehicle lost</div>' +
+    '<h1 class="fail">' + title + '</h1>' +
+    '<p>' + why + '</p>' +
+    '<dl><dt>Total</dt><dd>' + score + '</dd><dt>Best</dt><dd>' + best + '</dd></dl>' +
+    '<button class="btn" id="go" type="button">Fly it again</button>', newFlight);
+}
+
+// where the pins will cross arm height with engines off
+const pred = { pts: new Float32Array(30 * 3), n: 0, hit: false, x: 0, z: 0, ok: false };
+function predict() {
+  const s = ship, u = axisOf(s);
+  let x = s.x, y = s.y, z = s.z, vx = s.vx, vy = s.vy, vz = s.vz;
+  pred.n = 0; pred.hit = false;
+  const pjx = clamp(input.jx, -1, 1), pjy = clamp(input.jy, -1, 1), ptop = clamp((s.y + PIN * u.y - ARM.y) / 12, 5, SIDE), tvx = (pjx * CP - pjy * SP) * ptop, tvz = (-pjx * SP - pjy * CP) * ptop, hold = assist ? 2.2 : 0;
+  let lx = x + PIN * u.x, ly = y + PIN * u.y, lz = z + PIN * u.z;
+  if (ly < ARM.y) return;
+  for (let i = 1; i <= 140; i++) {
+    const sp = Math.hypot(vx, vy, vz);
+    vx += (wind.x - KD * vx * sp + (tvx - vx) * hold) * 0.1; vy += (-G - KD * vy * sp) * 0.1; vz += (wind.z - KD * vz * sp + (tvz - vz) * hold) * 0.1;
+    x += vx * 0.1; y += vy * 0.1; z += vz * 0.1;
+    const qx = x + PIN * u.x, qy = y + PIN * u.y, qz = z + PIN * u.z;
+    if (qy <= ARM.y) {
+      const f = (ly - ARM.y) / (ly - qy);
+      pred.hit = true; pred.x = lx + (qx - lx) * f; pred.z = lz + (qz - lz) * f;
+      pred.ok = pred.x > ARM.x0 + R && pred.x < ARM.x1 - 1 && Math.abs(pred.z) < gap(pred.x) - R + (assist ? 2.6 : 1.2);
+      return;
+    }
+    if (i % 4 === 0 && pred.n < 30) { pred.pts[pred.n * 3] = qx; pred.pts[pred.n * 3 + 1] = qy; pred.pts[pred.n * 3 + 2] = qz; pred.n++; }
+    lx = qx; ly = qy; lz = qz;
+  }
+}
+
+// ---------- particles ----------
+function puff(x, y, z, vx, vy, vz, life, type) {            // type 0 smoke, 1 fire, 2 vent
+  if (particles.length > 800) return;
+  particles.push({ x, y, z, vx, vy, vz, life, max: life, type, size: 3 + Math.random() * 4 });
+}
+function emitExhaust(s, u) {
+  if (Math.random() < 0.5) {
+    const d = HALF + 24;
+    puff(s.x - d * u.x + (Math.random() - 0.5) * 4, s.y - d * u.y, s.z - d * u.z + (Math.random() - 0.5) * 4,
+      s.vx - u.x * 45 + (Math.random() - 0.5) * 14, s.vy - u.y * 45 + (Math.random() - 0.5) * 14, s.vz - u.z * 45 + (Math.random() - 0.5) * 14,
+      0.5 + Math.random() * 0.5, 0);
+  }
+}
+function explode(s) {
+  const u = axisOf(s);
+  const dir = () => { const a = Math.random() * 6.283, c = Math.random() * 2 - 1, r = Math.sqrt(1 - c * c); return [Math.cos(a) * r, c, Math.sin(a) * r]; };
+  for (let i = 0; i < 220; i++) {
+    const k = (Math.random() - 0.5) * 2 * HALF, d = dir(), v = 8 + Math.random() * 55;
+    puff(s.x + k * u.x, Math.max(1, s.y + k * u.y), s.z + k * u.z, s.vx * 0.3 + d[0] * v, s.vy * 0.1 + d[1] * v + 12, s.vz * 0.3 + d[2] * v, 0.8 + Math.random() * 1.8, i % 3 ? 1 : 0);
+  }
+  for (const d of debris) {
+    const k = (Math.random() - 0.5) * 2 * HALF, q = dir(), v = 15 + Math.random() * 40;
+    d.on = true; d.x = s.x + k * u.x; d.y = Math.max(1, s.y + k * u.y); d.z = s.z + k * u.z;
+    d.vx = s.vx * 0.4 + q[0] * v; d.vy = Math.abs(q[1]) * v + 8; d.vz = s.vz * 0.4 + q[2] * v; d.r = Math.random() * 6; d.w = (Math.random() - 0.5) * 9;
+  }
+  flash = 1;
+  if (!reduceMotion) shake = 1;
+}
+function clearDebris() { for (const d of debris) d.on = false; }
+
+// ---------- 3D scene ----------
+let renderer, scene, camera, gfx = null;
+const camPos = { x: 0, y: 0, z: 0 }, camLook = { x: 0, y: 0, z: 0 };
+let psiNow = PSI;
+
+// ---------- procedural PBR textures (albedo, normal, roughness, metalness, AO) ----------
+function hash(x, y, s) { let h = (Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 1274126177)) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
+function vnoise(x, y, per, s) {
+  const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+  const x0 = ((xi % per) + per) % per, x1 = (x0 + 1) % per, y0 = ((yi % per) + per) % per, y1 = (y0 + 1) % per;
+  const a = hash(x0, y0, s), b = hash(x1, y0, s), c = hash(x0, y1, s), d = hash(x1, y1, s);
+  return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
+}
+function fbm(u, v, per, oct, s) { let a = 0, amp = 0.5, f = per, tot = 0; for (let i = 0; i < oct; i++) { a += amp * vnoise(u * f, v * f, f, s + i); tot += amp; amp *= 0.5; f *= 2; } return a / tot; }
+const sstep = (a, b, x) => { const k = clamp((x - a) / (b - a), 0, 1); return k * k * (3 - 2 * k); };
+const fr = x => x - Math.floor(x);
+const hx = { d: 0, ix: 0, iy: 0 };
+function hexCell(x, y) {                         // d: 0 at tile centre, 0.5 at its edge
+  const HY = 0.8660254, PY = 1.7320508;
+  const ax = fr(x) - 0.5, ay = fr(y / PY) * PY - HY, bx = fr(x - 0.5) - 0.5, by = fr((y - HY) / PY) * PY - HY;
+  const A = ax * ax + ay * ay < bx * bx + by * by, gx = A ? ax : bx, gy = A ? ay : by, px = Math.abs(gx), py = Math.abs(gy);
+  hx.d = Math.max(px * 0.5 + py * HY, px); hx.ix = Math.round((x - gx) * 2); hx.iy = Math.round((y - gy) / HY);
+}
+
+// each painter fills o = { h (height), r, g, b (sRGB albedo), rough, metal } for a point (u, v) of the tile
+function paintSteel(o, u, v) {                    // dark painted structural steel: plates, rivets, chips, rust
+  const n = fbm(u, v, 4, 5, 11), n2 = fbm(u, v, 16, 4, 23), pu = fr(u * 2), pv = fr(v * 2);
+  const e = Math.min(pu, 1 - pu, pv, 1 - pv), seam = 1 - sstep(0.004, 0.014, e);
+  const ru = fr(u * 32) - 0.5, rv = fr(v * 32) - 0.5, rivet = e > 0.02 && e < 0.047 ? 1 - sstep(0.03, 0.07, ru * ru + rv * rv) : 0;
+  const rust = sstep(0.68, 0.8, n + (0.05 - Math.min(e, 0.05)) * 2.2 + n2 * 0.1), chip = sstep(0.8, 0.83, n2) * (1 - rust);
+  const streak = fbm(u * 6, v * 0.5, 8, 3, 41), sh = 0.75 + 0.5 * n2 - 0.25 * streak;
+  let r = 0.125 * sh, g = 0.135 * sh, b = 0.15 * sh, rough = 0.5 + 0.2 * n, metal = 0;
+  r += (0.62 - r) * chip; g += (0.63 - g) * chip; b += (0.65 - b) * chip; rough += (0.3 - rough) * chip; metal = chip;
+  const rr = 0.3 + 0.2 * n2;
+  r += (rr - r) * rust; g += (rr * 0.5 - g) * rust; b += (rr * 0.22 - b) * rust; rough += (0.95 - rough) * rust; metal *= 1 - rust;
+  o.h = 0.5 - seam * 0.5 + rivet * 0.5 + rust * 0.12 * n2 - chip * 0.08 + n2 * 0.04;
+  o.r = r * (1 - seam * 0.5); o.g = g * (1 - seam * 0.5); o.b = b * (1 - seam * 0.5); o.rough = rough; o.metal = metal;
+}
+function paintBare(o, u, v) {                     // brushed bare steel
+  const br = fbm(u * 0.25, v * 8, 16, 4, 61), n = fbm(u, v, 4, 4, 67), c = 0.7 + 0.12 * br;
+  o.h = 0.5 + br * 0.12; o.r = c; o.g = c * 1.005; o.b = c * 1.02; o.rough = 0.26 + 0.2 * br + 0.1 * n; o.metal = 1;
+}
+function tileAt(o, x, y, wrapX, seed) {            // black hexagonal heat-shield tiles
+  hexCell(x, y);
+  const id = hash(((hx.ix % wrapX) + wrapX) % wrapX, hx.iy & 1023, seed), id2 = hash(hx.iy & 1023, ((hx.ix % wrapX) + wrapX) % wrapX, seed + 3);
+  const gapk = 1 - sstep(0.43, 0.475, hx.d), white = id2 > 0.997 ? 1 : 0;
+  const c = white ? 0.62 : 0.028 + 0.03 * id;
+  o.h = 0.15 + gapk * (0.75 + 0.1 * id) - sstep(0.0, 0.5, hx.d) * 0.05;
+  const k = 0.35 + 0.65 * gapk;
+  o.r = c * k; o.g = c * k; o.b = (c + (white ? 0 : 0.006)) * k; o.rough = white ? 0.9 : 0.62 + 0.25 * id; o.metal = 0;
+}
+function paintTiles(o, u, v) { tileAt(o, u * 6, v * 6 * 1.7320508 / 2 * 2, 12, 5); }
+function paintHull(o, u, v) {                     // u: around the hull, v: base to nose. Tiles on one side, ringed stainless on the other
+  const tiled = u < 0.532 || u > 0.968;
+  const edge = Math.min(Math.abs(u - 0.532), Math.abs(u - 0.968));
+  if (tiled && edge > 0.004 && v > 0.045) { tileAt(o, u * 60, v * 60 * 50 / 28.27, 120, 9); const soot = fbm(u, v * 1.77, 8, 4, 77); o.r += soot * 0.02; o.g += soot * 0.015; return; }
+  const rings = v * 27, rf = fr(rings), ring = Math.floor(rings), weld = 1 - sstep(0.0, 0.035, Math.min(rf, 1 - rf));
+  const vu = fr(u * 4 + (ring & 1) * 0.5), vweld = 1 - sstep(0.0, 0.006, Math.min(vu, 1 - vu));
+  const wr = fbm(u, v * 1.77, 6, 3, 81), br = fbm(u * 12, v * 0.4, 8, 3, 83), fine = fbm(u, v * 1.77, 32, 3, 85);
+  const w = Math.max(weld, vweld), soot = sstep(0.12, 0.0, v) * (0.5 + 0.5 * fine), frost = sstep(0.55, 0.75, fbm(u, v * 1.77, 5, 4, 91)) * sstep(0.25, 0.4, v) * sstep(0.75, 0.6, v);
+  let c = 0.74 + 0.08 * br - 0.1 * w - 0.03 * hash(ring, 0, 7);
+  c *= 1 - soot * 0.75; c += (0.9 - c) * frost * 0.5;
+  o.h = 0.5 + wr * 0.35 + w * 0.12 + fine * 0.02;
+  o.r = c; o.g = c * 1.005; o.b = c * 1.02;
+  o.rough = clamp(0.2 + 0.12 * br + 0.25 * w + soot * 0.5 + frost * 0.45, 0, 1); o.metal = 1 - soot * 0.6 - frost * 0.8;
+  if (v <= 0.045) { o.r = o.g = o.b = 0.03 + 0.02 * fine; o.rough = 0.7; o.metal = 0.4; }
+}
+function paintConcrete(o, u, v) {                 // poured slabs with joints, cracks and stains
+  const n = fbm(u, v, 4, 5, 101), fine = fbm(u, v, 64, 3, 105), su = fr(u * 4), sv = fr(v * 4);
+  const e = Math.min(su, 1 - su, sv, 1 - sv), joint = 1 - sstep(0.006, 0.02, e);
+  const cr = Math.abs(fbm(u, v, 6, 4, 111) - 0.5), crack = 1 - sstep(0.0, 0.012, cr), stain = sstep(0.5, 0.75, fbm(u, v, 3, 4, 119));
+  const slab = hash(Math.floor(u * 4), Math.floor(v * 4), 3);
+  let c = 0.46 + 0.1 * n + 0.06 * fine + 0.05 * (slab - 0.5) - stain * 0.16;
+  c *= 1 - joint * 0.6 - crack * 0.45;
+  o.h = 0.6 + fine * 0.25 + n * 0.1 - joint * 0.6 - crack * 0.4;
+  o.r = c * 1.01; o.g = c; o.b = c * 0.97; o.rough = 0.82 + 0.14 * fine - stain * 0.12; o.metal = 0;
+}
+function paintGround(o, u, v) {                   // close-up coastal flat: packed sand, grit, pebbles, tufts of dry grass
+  const grain = fbm(u, v, 96, 3, 131), mid = fbm(u, v, 12, 4, 133), rip = fbm(u * 0.6, v * 3, 10, 3, 135);
+  const tuft = sstep(0.6, 0.72, fbm(u, v, 40, 3, 137)) * sstep(0.45, 0.6, fbm(u, v, 5, 3, 139));
+  const pu = u * 90, pv = v * 90, ph = hash(Math.floor(pu), Math.floor(pv), 143), dxp = fr(pu) - 0.5, dyp = fr(pv) - 0.5;
+  const peb = ph > 0.93 ? 1 - sstep(0.04, 0.12, dxp * dxp + dyp * dyp) : 0;
+  const c = 0.5 + 0.17 * grain + 0.06 * mid + 0.04 * rip;
+  let r = c * 1.04, g = c * 0.98, b = c * 0.86;
+  r += (0.27 + 0.1 * grain - r) * tuft; g += (0.31 + 0.12 * grain - g) * tuft; b += (0.16 + 0.05 * grain - b) * tuft;
+  const pc = 0.42 + 0.3 * hash(Math.floor(pv), Math.floor(pu), 147);
+  r += (pc - r) * peb; g += (pc - g) * peb; b += (pc * 0.96 - b) * peb;
+  o.h = 0.3 + grain * 0.25 + mid * 0.2 + rip * 0.12 + tuft * 0.35 * grain + peb * 0.4;
+  o.r = r; o.g = g; o.b = b; o.rough = 0.9 + 0.1 * grain - peb * 0.25; o.metal = 0;
+}
+function paintTank(o, u, v) {                     // white painted tank shells: ring seams, runs of grime
+  const bands = v * 4, bf = fr(bands), seam = 1 - sstep(0.0, 0.03, Math.min(bf, 1 - bf));
+  const streak = fbm(u * 8, v * 0.6, 8, 4, 151), n = fbm(u, v, 8, 4, 157), rust = sstep(0.72, 0.85, n + seam * 0.2) * 0.7;
+  let r = 0.8 - 0.22 * streak * (1 - bf) - seam * 0.2, g = r, b = r * 0.98;
+  r += (0.4 - r) * rust; g += (0.22 - g) * rust; b += (0.1 - b) * rust;
+  o.h = 0.5 + seam * 0.4 + n * 0.05; o.r = r; o.g = g; o.b = b; o.rough = 0.42 + 0.25 * streak + rust * 0.4; o.metal = 0;
+}
+
+function buildScene() {
+  const T = THREE;
+  renderer = new T.WebGLRenderer({ canvas: cv, antialias: true, powerPreference: 'high-performance' });
+  renderer.outputEncoding = T.sRGBEncoding;
+  const lin = hex => new T.Color(hex).convertSRGBToLinear();
+  const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  scene = new T.Scene();
+  const FOG = 0xb4b8b9;
+  scene.fog = new T.Fog(FOG, 500, 5200);          // fog is mixed after output encoding, so it takes the display colour
+  camera = new T.PerspectiveCamera(40, 1, 2, 30000);
+
+  const canvasTex = (w, h, srgb) => {
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.anisotropy = aniso; if (srgb) t.encoding = T.sRGBEncoding;
+    return { c, x: c.getContext('2d'), t };
+  };
+  function makePBR(w, h, paint, bump, aoK) {
+    const Hh = new Float32Array(w * h), A = canvasTex(w, h, true), N = canvasTex(w, h), O = canvasTex(w, h);
+    const a = A.x.createImageData(w, h), nn = N.x.createImageData(w, h), om = O.x.createImageData(w, h), o = { h: 0, r: 0, g: 0, b: 0, rough: 1, metal: 0 };
+    for (let y = 0, i = 0; y < h; y++) for (let x = 0; x < w; x++, i++) {
+      paint(o, (x + 0.5) / w, 1 - (y + 0.5) / h);
+      Hh[i] = o.h; const k = i * 4;
+      a.data[k] = clamp(o.r, 0, 1) * 255; a.data[k + 1] = clamp(o.g, 0, 1) * 255; a.data[k + 2] = clamp(o.b, 0, 1) * 255; a.data[k + 3] = 255;
+      om.data[k + 1] = clamp(o.rough, 0.04, 1) * 255; om.data[k + 2] = clamp(o.metal, 0, 1) * 255; om.data[k + 3] = 255;
+    }
+    for (let y = 0, i = 0; y < h; y++) for (let x = 0; x < w; x++, i++) {
+      const xl = (x + w - 1) % w, xr = (x + 1) % w, yu = (y + h - 1) % h, yd = (y + 1) % h, x2l = (x + w - 3) % w, x2r = (x + 3) % w, y2u = (y + h - 3) % h, y2d = (y + 3) % h;
+      const dx = (Hh[y * w + xr] - Hh[y * w + xl]) * bump, dy = (Hh[yd * w + x] - Hh[yu * w + x]) * bump, l = 1 / Math.hypot(dx, dy, 1), k = i * 4;
+      nn.data[k] = (-dx * l * 0.5 + 0.5) * 255; nn.data[k + 1] = (dy * l * 0.5 + 0.5) * 255; nn.data[k + 2] = (l * 0.5 + 0.5) * 255; nn.data[k + 3] = 255;
+      const cav = (Hh[y * w + x2l] + Hh[y * w + x2r] + Hh[y2u * w + x] + Hh[y2d * w + x]) / 4 - Hh[i];
+      om.data[k] = clamp(1 - cav * aoK, 0.35, 1) * 255;
+    }
+    A.x.putImageData(a, 0, 0); N.x.putImageData(nn, 0, 0); O.x.putImageData(om, 0, 0);
+    return { map: A.t, normalMap: N.t, orm: O.t };
+  }
+  const std = (tx, tile, opt) => {
+    const m = new T.MeshStandardMaterial(Object.assign({ map: tx.map, normalMap: tx.normalMap, roughnessMap: tx.orm, metalnessMap: tx.orm, aoMap: tx.orm, roughness: 1, metalness: 1 }, opt || {}));
+    m.userData.tile = tile; return m;
+  };
+  const txSteel = makePBR(512, 512, paintSteel, 5, 3), txBare = makePBR(256, 256, paintBare, 2, 1), txTiles = makePBR(256, 256, paintTiles, 5, 2.5);
+  const txHull = makePBR(1024, 1024, paintHull, 4, 2.5), txConc = makePBR(512, 512, paintConcrete, 5, 2.5), txGround = makePBR(512, 512, paintGround, 6, 2), txTank = makePBR(256, 256, paintTank, 3, 2);
+  const steel = std(txSteel, 6), armMat = std(txSteel, 5, { color: 0xd8dde4 }), core = std(txSteel, 9, { color: 0x8a8f96 }), mountMat = std(txSteel, 7, { color: 0xc9c2b8 });
+  const bare = std(txBare, 2), tileMat = std(txTiles, 3), hullMat = std(txHull, 1, { envMapIntensity: 1.25 });
+  const concrete = std(txConc, 24, { polygonOffset: true, polygonOffsetFactor: -6, polygonOffsetUnits: -6 }), groundMat = std(txGround, 18), tankMat = std(txTank, 14);
+
+  // geometry helpers that lay textures out in metres rather than stretching them per face
+  const fin = g => { g.setAttribute('uv2', g.attributes.uv); return g; };
+  const boxGeo = (w, h, d, tile) => {
+    const g = new T.BoxGeometry(w, h, d), uv = g.attributes.uv, dims = [[d, h], [d, h], [w, d], [w, d], [w, h], [w, h]];
+    for (let f = 0; f < 6; f++) for (let i = 0; i < 4; i++) { const k = f * 4 + i; uv.setXY(k, uv.getX(k) * dims[f][0] / tile, uv.getY(k) * dims[f][1] / tile); }
+    return fin(g);
+  };
+  const cylGeo = (r, h, tile) => {
+    const g = new T.CylinderGeometry(r, r, h, 28), uv = g.attributes.uv, side = 29 * 2, rep = Math.max(1, Math.round(6.283 * r / tile));
+    for (let k = 0; k < uv.count; k++) k < side ? uv.setXY(k, uv.getX(k) * rep, uv.getY(k) * h / tile) : uv.setXY(k, uv.getX(k) * 2 * r / tile, uv.getY(k) * 2 * r / tile);
+    return fin(g);
+  };
+  const flat = (g, su, sv) => { const uv = g.attributes.uv; for (let k = 0; k < uv.count; k++) uv.setXY(k, uv.getX(k) * su, uv.getY(k) * sv); g.rotateX(-Math.PI / 2); return fin(g); };
+  const box = (w, h, d, m, x, y, z, parent) => { const b = new T.Mesh(boxGeo(w, h, d, m.userData.tile), m); b.position.set(x, y, z); (parent || scene).add(b); return b; };
+  const cyl = (r, h, m, x, y, z, parent) => { const b = new T.Mesh(cylGeo(r, h, m.userData.tile), m); b.position.set(x, y, z); (parent || scene).add(b); return b; };
+
+  // overcast sky: a painted cloud deck that fades into the haze at the horizon; also lights the scene as its environment
+  const skyC = canvasTex(1024, 512, true), sd = skyC.x.createImageData(1024, 512), fc = new T.Color(FOG);
+  for (let y = 0, i = 0; y < 512; y++) for (let x = 0; x < 1024; x++, i += 4) {
+    const u = x / 1024, v = 1 - y / 512, el = (v - 0.5) * 2;
+    let r = fc.r, g = fc.g, b = fc.b;
+    if (el > 0) {
+      const sc = 1 / (el + 0.25), n = fbm(u, el * sc * 0.5, 8, 5, 201), n2 = fbm(u, el * sc * 0.5, 3, 3, 207);
+      const c = 0.36 + 0.34 * n + 0.14 * n2, k = sstep(0.0, 0.3, el);
+      r = fc.r + (c * 0.97 - fc.r) * k; g = fc.g + (c - fc.g) * k; b = fc.b + (c * 1.03 - fc.b) * k;
+    }
+    sd.data[i] = r * 255; sd.data[i + 1] = g * 255; sd.data[i + 2] = b * 255; sd.data[i + 3] = 255;
+  }
+  skyC.x.putImageData(sd, 0, 0); skyC.t.wrapT = T.ClampToEdgeWrapping;
+  const sky = new T.Mesh(new T.SphereGeometry(20000, 32, 16), new T.MeshBasicMaterial({ map: skyC.t, side: T.BackSide, fog: false, depthWrite: false }));
+  scene.add(sky);
+  const envScene = new T.Scene();
+  envScene.add(new T.Mesh(new T.SphereGeometry(50, 32, 16), new T.MeshBasicMaterial({ map: skyC.t, side: T.BackSide, color: new T.Color(1.9, 1.9, 1.9) })));
+  const glow = new T.Mesh(new T.SphereGeometry(14, 16, 8), new T.MeshBasicMaterial({ color: new T.Color(4, 4, 3.8) })); glow.position.set(-18, 36, 26); envScene.add(glow);
+  const envGround = new T.Mesh(new T.CircleGeometry(60, 24), new T.MeshBasicMaterial({ color: new T.Color(0.3, 0.29, 0.25) })); envGround.rotation.x = -Math.PI / 2; envGround.position.y = -1.5; envScene.add(envGround);
+  const pm = new T.PMREMGenerator(renderer);
+  scene.environment = pm.fromScene(envScene, 0.03).texture; pm.dispose();
+
+  scene.add(new T.HemisphereLight(lin(0xe6ecef), lin(0x5a5f62), 0.25));
+  const sun = new T.DirectionalLight(0xffffff, 0.9); sun.position.set(-0.5, 1, 0.7); scene.add(sun);
+
+  // ground, pad, road, launch mount, tank farm
+  // macro map: kilometre-scale drifts of grass, bare sand and dark mud that tint the detail tile, so no repeat shows
+  const mac = canvasTex(512, 512), md = mac.x.createImageData(512, 512);
+  for (let y = 0, i = 0; y < 512; y++) for (let x = 0; x < 512; x++, i += 4) {
+    const u = x / 512, v = y / 512, wu = u + 0.06 * (fbm(u, v, 6, 3, 311) - 0.5), wv = v + 0.06 * (fbm(u, v, 6, 3, 313) - 0.5);
+    const g = sstep(0.44, 0.58, fbm(wu, wv, 5, 6, 301)), m = sstep(0.58, 0.68, fbm(wu, wv, 4, 6, 303)) * (1 - g * 0.6), br = 0.85 + 0.3 * fbm(u, v, 3, 5, 305);
+    let r = 0.5, gg = 0.49, b = 0.47;
+    r += (0.36 - r) * g; gg += (0.4 - gg) * g; b += (0.28 - b) * g;
+    r += (0.3 - r) * m; gg += (0.28 - gg) * m; b += (0.26 - b) * m;
+    md.data[i] = clamp(r * br, 0, 1) * 255; md.data[i + 1] = clamp(gg * br, 0, 1) * 255; md.data[i + 2] = clamp(b * br, 0, 1) * 255; md.data[i + 3] = 255;
+  }
+  mac.x.putImageData(md, 0, 0);
+  groundMat.onBeforeCompile = sh => {
+    sh.uniforms.macroMap = { value: mac.t };
+    sh.fragmentShader = 'uniform sampler2D macroMap;\n' + sh.fragmentShader.replace('#include <map_fragment>',
+      'vec4 texelColor = mapTexelToLinear( mix( texture2D( map, vUv ), texture2D( map, vUv * 0.23 + 0.37 ), 0.45 ) );\n' +
+      'diffuseColor *= texelColor;\n' +
+      'diffuseColor.rgb *= texture2D( macroMap, vUv * ' + (18 / 1700).toFixed(6) + ' ).rgb * 1.45;');
+  };
+  scene.add(new T.Mesh(flat(new T.PlaneGeometry(36000, 36000), 36000 / 18, 36000 / 18), groundMat));
+  const pad = new T.Mesh(flat(new T.CircleGeometry(95, 64), 190 / 24, 190 / 24), concrete); pad.position.set(15, 0.3, 0); scene.add(pad);
+  const road = new T.Mesh(flat(new T.PlaneGeometry(900, 16), 900 / 24, 16 / 24), concrete); road.position.set(-420, 0.25, 30); scene.add(road);
+  cyl(10, 4.5, mountMat, TARGET_X, 19, 0);
+  for (let i = 0; i < 6; i++) cyl(1.3, 17, mountMat, TARGET_X + Math.cos(i * 1.047) * 8.2, 8.5, Math.sin(i * 1.047) * 8.2);
+  for (const [x, z, r, h] of [[88, -52, 5, 28], [100, -52, 5, 28], [112, -52, 5, 33], [124, -52, 4, 22], [94, -68, 5, 28], [106, -68, 5, 30], [-70, 60, 12, 12], [-104, 70, 8, 8]]) cyl(r, h, tankMat, x, h / 2, z);
+
+  // tower: solid core, corner columns, and real cross-bracing members
+  box(11, TOWER.h, 11, core, 0, TOWER.h / 2, 0);
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) box(1.5, TOWER.h, 1.5, steel, sx * 6.25, TOWER.h / 2, sz * 6.25);
+  const c = 7, dy = TOWER.h / 12, dl = Math.hypot(2 * c, dy);
+  const diag = new T.InstancedMesh(boxGeo(dl, 0.55, 0.55, 6), steel, 96), horiz = new T.InstancedMesh(boxGeo(2 * c, 0.7, 0.7, 6), steel, 48);
+  const M = new T.Matrix4(), Q = new T.Quaternion(), X = new T.Vector3(1, 0, 0), D = new T.Vector3(), P = new T.Vector3(), S = new T.Vector3(1, 1, 1);
+  const corners = [[-c, -c], [c, -c], [c, c], [-c, c]];
+  let di = 0, hi = 0;
+  for (let i = 0; i < 12; i++) for (let j = 0; j < 4; j++) {
+    const a = corners[j], b = corners[(j + 1) % 4], y0 = i * dy, y1 = y0 + dy;
+    for (const up of [1, -1]) {
+      D.set(b[0] - a[0], up * dy, b[1] - a[1]).normalize(); Q.setFromUnitVectors(X, D);
+      P.set((a[0] + b[0]) / 2, y0 + dy / 2, (a[1] + b[1]) / 2); diag.setMatrixAt(di++, M.compose(P, Q, S));
+    }
+    D.set(b[0] - a[0], 0, b[1] - a[1]).normalize(); Q.setFromUnitVectors(X, D);
+    P.set((a[0] + b[0]) / 2, y1, (a[1] + b[1]) / 2); horiz.setMatrixAt(hi++, M.compose(P, Q, S));
+  }
+  scene.add(diag, horiz);
+  box(17, 4, 17, steel, 0, TOWER.h + 2, 0); box(8, 5, 8, steel, 0, TOWER.h + 6.5, 0); box(0.6, 18, 0.6, bare, 0, TOWER.h + 18, 0);
+
+  // catch arms: tapered beams pivoting at the tower face, with a lit status rail on top
+  const armGroup = new T.Group(); scene.add(armGroup);
+  box(18, 15, 18, steel, 0, -3.5, 0, armGroup);
+  const len = ARM.x1 - ARM.x0, shp = new T.Shape();
+  shp.moveTo(0, 0); shp.lineTo(len, 0); shp.lineTo(len + 1.5, -1.2); shp.lineTo(len, -2.4); shp.lineTo(0, -8); shp.closePath();
+  const beamG = new T.ExtrudeGeometry(shp, { depth: ARM.hw * 2, bevelEnabled: false }); beamG.translate(0, 0, -ARM.hw);
+  for (let k = 0, uv = beamG.attributes.uv; k < uv.count; k++) uv.setXY(k, uv.getX(k) / 5, uv.getY(k) / 5);
+  fin(beamG);
+  const railMat = new T.MeshStandardMaterial({ color: 0x111111, roughness: 0.4, metalness: 0, emissive: lin(0xffc857) });
+  const arms = [];
+  for (const sgn of [-1, 1]) {
+    const g = new T.Group(); g.position.set(ARM.x0, 0, sgn * ARM.pz);
+    g.add(new T.Mesh(beamG, armMat));
+    const rail = new T.Mesh(new T.BoxGeometry(len - R, 0.5, 1.2), railMat); rail.position.set(R + (len - R) / 2, 0.25, 0); g.add(rail);
+    for (let i = 1; i < 7; i++) { const x = len * i / 7; box(0.5, 8 - 5.6 * i / 7 + 0.3, ARM.hw * 2 + 0.4, steel, x, -(8 - 5.6 * i / 7) / 2, 0, g); }
+    armGroup.add(g); arms.push({ g, sgn });
+  }
+
+  // ship: lathe hull (stainless rings one side, heat-shield tiles the other), four tiled flaps, steel catch pins
+  const shipG = new T.Group(); scene.add(shipG);
+  const prof = [new T.Vector2(0.001, -HALF)];
+  for (let y = -HALF; y <= 10; y += 2.5) prof.push(new T.Vector2(R, y));
+  for (let i = 1; i <= 12; i++) { const a = i / 12 * Math.PI / 2; prof.push(new T.Vector2(Math.max(0.001, R * Math.cos(a) * (1 - 0.12 * Math.sin(a * 2))), 10 + 15 * Math.sin(a))); }
+  const hullG = new T.LatheGeometry(prof, 56);
+  for (let k = 0, uv = hullG.attributes.uv, ps = hullG.attributes.position; k < uv.count; k++) uv.setY(k, (ps.getY(k) + HALF) / (2 * HALF));
+  hullG.computeVertexNormals(); fin(hullG);
+  const hullMesh = new T.Mesh(hullG, hullMat); shipG.add(hullMesh);
+  cyl(R + 0.06, 2.4, std(txBare, 3, { color: 0x30333a }), 0, -HALF + 1.2, 0, shipG);
+  for (const sgn of [-1, 1]) {
+    box(0.5, 15, 4.4, tileMat, 0, -16.5, sgn * (R + 2.0), shipG);
+    const ff = box(0.5, 7.5, 3.4, tileMat, 0, 17.2, sgn * (3.2 + 1.5), shipG); ff.rotation.x = -sgn * 0.12;
+    box(1.4, 1.3, 1.6, bare, 0, PIN + 0.5, sgn * (R + 0.5), shipG);
+  }
+  const flame = new T.Group(); flame.position.y = -HALF; shipG.add(flame);
+  const coneG = new T.ConeGeometry(1, 1, 18, 1, true); coneG.rotateX(Math.PI); coneG.translate(0, -0.5, 0);
+  const fl = (r, c, o) => { const m = new T.Mesh(coneG, new T.MeshBasicMaterial({ color: lin(c), transparent: true, opacity: o, depthWrite: false, fog: false, side: T.DoubleSide })); m.scale.set(r, 1, r); flame.add(m); return m; };
+  fl(3.6, 0xff8a5b, 0.5); fl(2.4, 0xffb37a, 0.75); fl(1.3, 0xfff3dc, 0.95);
+  const glowL = new T.PointLight(lin(0xff9a6a), 0, 260, 2); glowL.position.y = -HALF - 12; shipG.add(glowL);
+
+  const shadow = new T.Mesh(new T.CircleGeometry(7, 24), new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -10, polygonOffsetUnits: -10 }));
+  shadow.rotation.x = -Math.PI / 2; scene.add(shadow);
+
+  // guides: dotted fall line and the ring where the pins will cross arm height
+  const predG = new T.BufferGeometry(); predG.setAttribute('position', new T.BufferAttribute(pred.pts, 3));
+  const predPts = new T.Points(predG, new T.PointsMaterial({ color: lin(0xeef1f2), size: 3.5, sizeAttenuation: false, transparent: true, opacity: 0.7, depthTest: false, fog: false }));
+  predPts.frustumCulled = false; predPts.renderOrder = 5; scene.add(predPts);
+  const ringMat = new T.MeshBasicMaterial({ color: lin(0xffc857), transparent: true, opacity: 0.95, depthTest: false, fog: false, side: T.DoubleSide });
+  const ring = new T.Mesh(new T.RingGeometry(R - 0.5, R + 0.5, 40), ringMat); ring.rotation.x = -Math.PI / 2; ring.renderOrder = 6; scene.add(ring);
+
+  // particles: soft round points sized in metres
+  const PMAX = 900, pPos = new Float32Array(PMAX * 3), pCol = new Float32Array(PMAX * 4), pSize = new Float32Array(PMAX);
+  const pG = new T.BufferGeometry();
+  pG.setAttribute('position', new T.BufferAttribute(pPos, 3));
+  pG.setAttribute('aCol', new T.BufferAttribute(pCol, 4));
+  pG.setAttribute('aSize', new T.BufferAttribute(pSize, 1));
+  const pMat = new T.ShaderMaterial({
+    uniforms: { uScale: { value: 1 } }, transparent: true, depthWrite: false,
+    vertexShader: 'attribute vec4 aCol; attribute float aSize; varying vec4 vCol; uniform float uScale; void main(){ vCol=aCol; vec4 mv=modelViewMatrix*vec4(position,1.0); gl_PointSize=aSize*uScale/max(1.0,-mv.z); gl_Position=projectionMatrix*mv; }',
+    fragmentShader: 'varying vec4 vCol; void main(){ float d=length(gl_PointCoord-0.5); gl_FragColor=vec4(vCol.rgb, vCol.a*smoothstep(0.5,0.15,d)); }'
+  });
+  const pts = new T.Points(pG, pMat); pts.frustumCulled = false; pts.renderOrder = 4; scene.add(pts);
+
+  for (let i = 0; i < 18; i++) {
+    const sz = 1.5 + Math.random() * 3.5, m = box(sz, sz * 0.4, sz * 0.8, i % 2 ? bare : tileMat, 0, -50, 0); m.visible = false;
+    debris.push({ on: false, x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, r: 0, w: 0, m });
+  }
+
+  // birds circling the site
+  const birdMat = new T.MeshStandardMaterial({ color: 0x1a1c1f, roughness: 0.85, metalness: 0, side: T.DoubleSide });
+  const wingG = new T.BufferGeometry(); wingG.setAttribute('position', new T.Float32BufferAttribute([0, 0, -0.5, 0, 0, 0.5, 3.2, 0, 0], 3)); wingG.computeVertexNormals();
+  const birds = [];
+  for (let i = 0; i < 6; i++) {
+    const g = new T.Group(), a = new T.Mesh(wingG, birdMat), b = new T.Mesh(wingG, birdMat); b.scale.x = -1; g.add(a, b); scene.add(g);
+    birds.push({ g, a, b, rad: 90 + Math.random() * 260, h: 35 + Math.random() * 150, sp: (0.04 + Math.random() * 0.05) * (i % 2 ? 1 : -1), ph: Math.random() * 6.28, cx: (Math.random() - 0.5) * 200, cz: (Math.random() - 0.5) * 200 });
+  }
+
+  gfx = { sky, armGroup, arms, railMat, shipG, flame, glowL, shadow, predG, predPts, ring, ringMat, pG, pPos, pCol, pSize, pMat, PMAX, birds, up: new T.Vector3(0, 1, 0), v: new T.Vector3(),
+    cGo: lin(0x7ee0a1), cWarn: lin(0xffc857) };
+}
+
+function resize() {
+  W = cv.clientWidth; H = cv.clientHeight;
+  if (!renderer) return;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(W, H, false);
+  camera.aspect = W / H; camera.updateProjectionMatrix();
+  snapCamera();
+}
+
+function cameraGoal() {
+  const s = ship, ty = ARM.y - 14;
+  const cx = (s.x + TARGET_X) / 2, cy = (s.y + ty) / 2, cz = s.z / 2;
+  const r = Math.hypot(s.x - TARGET_X, s.y - ty, s.z) / 2 + 52;
+  const vh = camera.fov * Math.PI / 360, hh = Math.atan(Math.tan(vh) * camera.aspect);
+  const d = 1.1 * r / Math.sin(Math.min(vh, hh)), el = 0.15;
+  // keep the action clear of the telemetry strip, or of the card when it fills the lower screen
+  const ly = cy + r * (document.body.classList.contains('carded') && W < 900 ? -0.75 : 0.2);
+  return { px: cx + Math.sin(psiNow) * Math.cos(el) * d, py: Math.max(6, cy + Math.sin(el) * d), pz: cz + Math.cos(psiNow) * Math.cos(el) * d, lx: cx, ly: ly, lz: cz };
+}
+function snapCamera() {
+  if (!camera) return;
+  const g = cameraGoal();
+  camPos.x = g.px; camPos.y = g.py; camPos.z = g.pz; camLook.x = g.lx; camLook.y = g.ly; camLook.z = g.lz;
+}
+function moveCamera(dt) {
+  psiNow = mode === 'title' ? PSI + Math.sin(t * 0.25) * 0.5 : PSI;
+  const g = cameraGoal(), k = 1 - Math.exp(-4 * dt);
+  camPos.x += (g.px - camPos.x) * k; camPos.y += (g.py - camPos.y) * k; camPos.z += (g.pz - camPos.z) * k;
+  camLook.x += (g.lx - camLook.x) * k; camLook.y += (g.ly - camLook.y) * k; camLook.z += (g.lz - camLook.z) * k;
+}
+
+function envelope() {
+  const s = ship, u = axisOf(s);
+  return { vy: -s.vy <= LIM.vy && s.vy < 2, vh: Math.hypot(s.vx, s.vz) <= LIM.vh, tilt: Math.acos(clamp(u.y, -1, 1)) <= LIM.tilt };
+}
+
+function render(now, dt) {
+  const s = ship, u = axisOf(s), q = gfx;
+  let sx = 0, sy = 0;
+  if (shake > 0) { const m = shake * Math.hypot(camPos.x - camLook.x, camPos.z - camLook.z) * 0.012; sx = (Math.random() - 0.5) * m; sy = (Math.random() - 0.5) * m; }
+  camera.position.set(camPos.x + sx, camPos.y + sy, camPos.z);
+  camera.lookAt(camLook.x, camLook.y, camLook.z);
+  q.sky.position.copy(camera.position); q.sky.position.y = 0;
+
+  q.shipG.visible = !s.dead;
+  q.shipG.position.set(s.x, s.y, s.z);
+  q.shipG.quaternion.setFromUnitVectors(q.up, q.v.set(u.x, u.y, u.z));
+  q.flame.visible = s.burning;
+  if (s.burning) q.flame.scale.y = 30 + Math.random() * 12;
+  q.glowL.intensity = s.burning ? 2.2 + Math.random() * 0.6 : 0;
+  q.shadow.visible = !s.dead; q.shadow.position.set(s.x, 0.5, s.z);
+  q.shadow.material.opacity = 0.34 * clamp(1 - s.y / 700, 0.15, 1);
+
+  q.armGroup.position.y = ARM.y + armDip;
+  for (const a of q.arms) a.g.rotation.y = -a.sgn * armAngle;
+  const e = envelope();
+  q.railMat.emissive.copy(mode === 'caught' || (mode === 'playing' && e.vy && e.vh && e.tilt) ? q.cGo : q.cWarn);
+
+  const guide = mode === 'playing';
+  if (guide) predict();
+  q.predPts.visible = guide && pred.n > 0;
+  if (guide) { q.predG.attributes.position.needsUpdate = true; q.predG.setDrawRange(0, pred.n); }
+  q.ring.visible = guide && pred.hit;
+  if (q.ring.visible) { q.ring.position.set(pred.x, ARM.y + 0.6, pred.z); q.ringMat.color.copy(pred.ok ? q.cGo : q.cWarn); }
+
+  let n = 0;
+  for (const p of particles) {
+    if (n >= q.PMAX) break;
+    const k = p.life / p.max, i3 = n * 3, i4 = n * 4;
+    q.pPos[i3] = p.x; q.pPos[i3 + 1] = p.y; q.pPos[i3 + 2] = p.z;
+    if (p.type === 1) { q.pCol[i4] = 1; q.pCol[i4 + 1] = 0.42 + 0.5 * k; q.pCol[i4 + 2] = 0.2 + 0.25 * k * k; q.pCol[i4 + 3] = k * 0.95; q.pSize[n] = p.size * (2.4 - k); }
+    else if (p.type === 2) { q.pCol[i4] = q.pCol[i4 + 1] = q.pCol[i4 + 2] = 0.95; q.pCol[i4 + 3] = k * 0.1; q.pSize[n] = p.size * (2.0 - k); }
+    else { q.pCol[i4] = 0.33; q.pCol[i4 + 1] = 0.34; q.pCol[i4 + 2] = 0.35; q.pCol[i4 + 3] = k * 0.4; q.pSize[n] = p.size * (3.4 - k * 2); }
+    n++;
+  }
+  q.pG.setDrawRange(0, n);
+  q.pG.attributes.position.needsUpdate = q.pG.attributes.aCol.needsUpdate = q.pG.attributes.aSize.needsUpdate = true;
+  q.pMat.uniforms.uScale.value = renderer.domElement.height / (2 * Math.tan(camera.fov * Math.PI / 360));
+
+  for (const d of debris) { d.m.visible = d.on; if (d.on) { d.m.position.set(d.x, d.y, d.z); d.m.rotation.set(d.r, d.r * 0.7, d.r * 1.3); } }
+  for (const b of q.birds) {
+    const a = now * b.sp + b.ph, f = Math.sin(now * 7 + b.ph) * 0.6;
+    b.g.position.set(b.cx + Math.cos(a) * b.rad, b.h + Math.sin(now * 0.3 + b.ph) * 6, b.cz + Math.sin(a) * b.rad);
+    b.g.rotation.y = -a + (b.sp > 0 ? 0 : Math.PI);
+    b.a.rotation.z = f; b.b.rotation.z = -f;
+  }
+  renderer.render(scene, camera);
+  $('flash').style.opacity = (flash * 0.6).toFixed(2);
+}
+
+// ---------- radar (top view, oriented like the camera: up is away from you) ----------
+const rc = $('radar').getContext('2d');
+function radar() {
+  const S = 208, k = S / 110, c = rc;
+  const map = (x, z) => { const dx = x - TARGET_X, dz = z; return [S / 2 + (dx * CP - dz * SP) * k, S / 2 + (dx * SP + dz * CP) * k]; };
+  c.clearRect(0, 0, S, S);
+  c.lineCap = 'round';
+  // tower
+  c.fillStyle = '#5c646a'; c.beginPath();
+  [[-7, -7], [7, -7], [7, 7], [-7, 7]].forEach((p, i) => { const m = map(p[0], p[1]); i ? c.lineTo(m[0], m[1]) : c.moveTo(m[0], m[1]); }); c.fill();
+  // arms
+  const e = envelope(), good = mode === 'caught' || (mode === 'playing' && e.vy && e.vh && e.tilt);
+  c.strokeStyle = good ? '#7ee0a1' : '#ffc857'; c.lineWidth = 5;
+  for (const sgn of [-1, 1]) {
+    const a = map(ARM.x0, sgn * ARM.pz), L = ARM.x1 - ARM.x0, b = map(ARM.x0 + L * Math.cos(armAngle), sgn * (ARM.pz + L * Math.sin(armAngle)));
+    c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.stroke();
+  }
+  if (mode === 'title') return;
+  if (mode === 'playing' && pred.hit) {
+    const m = map(pred.x, pred.z); m[0] = clamp(m[0], 8, S - 8); m[1] = clamp(m[1], 8, S - 8);
+    c.strokeStyle = pred.ok ? '#7ee0a1' : '#ffc857'; c.lineWidth = 3;
+    c.beginPath(); c.moveTo(m[0] - 7, m[1] - 7); c.lineTo(m[0] + 7, m[1] + 7); c.moveTo(m[0] + 7, m[1] - 7); c.lineTo(m[0] - 7, m[1] + 7); c.stroke();
+  }
+  if (!ship.dead) {
+    const u = axisOf(ship), m = map(ship.x + PIN * u.x, ship.z + PIN * u.z);
+    const out = m[0] < 8 || m[0] > S - 8 || m[1] < 8 || m[1] > S - 8;
+    m[0] = clamp(m[0], 8, S - 8); m[1] = clamp(m[1], 8, S - 8);
+    c.fillStyle = '#eef1f2'; c.strokeStyle = '#eef1f2'; c.lineWidth = 2.5;
+    c.beginPath(); c.arc(m[0], m[1], out ? 5 : R * k, 0, 6.3); out ? c.fill() : c.stroke();
+    if (!out) { c.beginPath(); c.arc(m[0], m[1], 2, 0, 6.3); c.fill(); }
+  }
+  const wm = Math.hypot(wind.x, wind.z);
+  if (wm > 0.15) {
+    const dx = (wind.x * CP - wind.z * SP) / wm, dy = (wind.x * SP + wind.z * CP) / wm, ox = 22, oy = S - 22;
+    c.strokeStyle = '#a9b0b5'; c.lineWidth = 2.5;
+    c.beginPath(); c.moveTo(ox - dx * 12, oy - dy * 12); c.lineTo(ox + dx * 12, oy + dy * 12);
+    c.lineTo(ox + dx * 12 - (dx * 7 - dy * 5), oy + dy * 12 - (dy * 7 + dx * 5)); c.moveTo(ox + dx * 12, oy + dy * 12);
+    c.lineTo(ox + dx * 12 - (dx * 7 + dy * 5), oy + dy * 12 - (dy * 7 - dx * 5)); c.stroke();
+  }
+}
+
+// ---------- HUD ----------
+const el = { alt: $('v-alt'), vy: $('v-vy'), vx: $('v-vx'), tilt: $('v-tilt'), wind: $('v-wind'), level: $('v-level'), score: $('v-score'), fuel: $('fuelfill') };
+const cells = { vy: $('c-vy'), vx: $('c-vx'), tilt: $('c-tilt') };
+function setCell(c, ok, near) { c.classList.toggle('ok', ok); c.classList.toggle('hot', !ok && near); }
+function hud() {
+  const s = ship, u = axisOf(s), alt = s.y + PIN * u.y - ARM.y, e = envelope();
+  const near = mode === 'playing' && alt < 120, live = mode !== 'title';
+  el.alt.textContent = Math.max(0, alt).toFixed(0);
+  el.vy.textContent = (-s.vy).toFixed(1);
+  el.vx.textContent = Math.hypot(s.vx, s.vz).toFixed(1);
+  el.tilt.textContent = (Math.acos(clamp(u.y, -1, 1)) * 57.2958).toFixed(0);
+  setCell(cells.vy, e.vy && live, near); setCell(cells.vx, e.vh && live, near); setCell(cells.tilt, e.tilt && live, near);
+  const f = live ? s.fuel / fuelMax : 1;
+  el.fuel.style.transform = 'scaleX(' + f.toFixed(3) + ')';
+  el.fuel.classList.toggle('low', f < 0.2);
+  const wm = Math.hypot(wind.x, wind.z);
+  el.wind.textContent = wm < 0.15 ? 'calm' : wm.toFixed(1);
+  el.level.textContent = level; el.score.textContent = score;
+  // tell an assisted pilot when the braking burn has to start
+  const v = -s.vy, a = THRUST * u.y - G;
+  $('cue').hidden = !(assist && mode === 'playing' && !input.burn && s.fuel > 0 && alt > 0 && v > LIM.vy * 0.75 && alt < (v * v - 30) / (2 * a) + v * 0.4 + 8);
+}
+
+// ---------- card ----------
+const card = $('card'), wrap = $('card-wrap');
+let primary = null;
+function showCard(html, action) {
+  card.innerHTML = html; wrap.hidden = false; primary = action; document.body.classList.add('carded');
+  const b = $('go'); if (b) b.addEventListener('click', act);
+}
+function hideCard() { wrap.hidden = true; primary = null; document.body.classList.remove('carded'); }
+function act() { audioOn(); const a = primary; if (a) a(); }
+function titleCard() {
+  setAssist(true);
+  showCard(
+    '<div class="eyebrow">Ship return · catch attempt</div>' +
+    '<h1>Tower Catch</h1>' +
+    '<p>The ship has no landing legs. Bring it down between the two tower arms and set its catch pins on the rails. The arms close once it is in.</p>' +
+    '<p class="keys"><b>Tilt</b> moves the ship the way you push (stick, arrow keys or W A S D; up is away from you). Let go and it stops drifting. <b>Burn</b> slows the fall (Space); a <b>Burn now</b> call tells you when to start. Put the ring between the arms: ring and rails turn green when you are on target and slow enough.</p>' +
+    (best ? '<p class="keys">Best total: <b>' + best + '</b></p>' : '') +
+    '<p class="keys">Unofficial fan game. Not affiliated with SpaceX.</p>' +
+    '<button class="btn" id="go" type="button">Start descent</button>' +
+    '<button class="btn alt" id="go2" type="button">Fly without assists</button>', () => { level = 1; score = 0; newFlight(); });
+  $('go2').addEventListener('click', () => { audioOn(); setAssist(false); level = 1; score = 0; newFlight(); });
+}
+
+// ---------- input ----------
+const keymap = { ArrowLeft: 'l', a: 'l', A: 'l', ArrowRight: 'r', d: 'r', D: 'r', ArrowUp: 'u', w: 'u', W: 'u', ArrowDown: 'd', s: 'd', S: 'd' };
+let keyBurn = false, padBurn = false;
+function syncInput() {
+  input.jx = clamp((keys.r ? 1 : 0) - (keys.l ? 1 : 0) + stick.x, -1, 1);
+  input.jy = clamp((keys.u ? 1 : 0) - (keys.d ? 1 : 0) + stick.y, -1, 1);
+  input.burn = keyBurn || padBurn;
+}
+addEventListener('keydown', e => {
+  if (e.key === 'm' || e.key === 'M') return toggleMute();
+  if ((e.key === 'r' || e.key === 'R') && mode !== 'title' && !e.repeat) { pendingResult = null; return newFlight(); }
+  if ((e.key === 'Enter' || e.key === ' ') && primary && !e.repeat) { e.preventDefault(); return act(); }
+  if (e.key === ' ' || e.key === 'Shift') { keyBurn = true; e.preventDefault(); audioOn(); }
+  const k = keymap[e.key];
+  if (k) { keys[k] = true; e.preventDefault(); audioOn(); }
+  syncInput();
+});
+addEventListener('keyup', e => {
+  if (e.key === ' ' || e.key === 'Shift') keyBurn = false;
+  const k = keymap[e.key]; if (k) keys[k] = false;
+  syncInput();
+});
+addEventListener('blur', () => { keys.l = keys.r = keys.u = keys.d = keyBurn = false; syncInput(); });
+(() => {
+  const b = $('p-burn');
+  const set = v => { padBurn = v; b.classList.toggle('on', v); syncInput(); };
+  b.addEventListener('pointerdown', e => { e.preventDefault(); audioOn(); try { b.setPointerCapture(e.pointerId); } catch (x) {} set(true); });
+  for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) b.addEventListener(ev, () => set(false));
+  b.addEventListener('contextmenu', e => e.preventDefault());
+  const st = $('stick'), knob = $('knob');
+  let pid = null;
+  const move = e => {
+    const r = st.getBoundingClientRect(), m = r.width / 2 - 20;
+    let x = (e.clientX - r.left - r.width / 2) / m, y = (e.clientY - r.top - r.height / 2) / m;
+    const l = Math.hypot(x, y); if (l > 1) { x /= l; y /= l; }
+    stick.x = x; stick.y = -y; knob.style.transform = 'translate(' + (x * m).toFixed(1) + 'px,' + (y * m).toFixed(1) + 'px)'; syncInput();
+  };
+  const end = () => { pid = null; stick.x = stick.y = 0; knob.style.transform = ''; syncInput(); };
+  st.addEventListener('pointerdown', e => { e.preventDefault(); audioOn(); pid = e.pointerId; try { st.setPointerCapture(pid); } catch (x) {} move(e); });
+  st.addEventListener('pointermove', e => { if (e.pointerId === pid) move(e); });
+  for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) st.addEventListener(ev, e => { if (e.pointerId === pid) end(); });
+  st.addEventListener('contextmenu', e => e.preventDefault());
+})();
+if ((window.matchMedia && matchMedia('(pointer: coarse)').matches) || 'ontouchstart' in window) document.body.classList.add('touch');
+addEventListener('touchstart', () => document.body.classList.add('touch'), { passive: true });
+
+// ---------- sound ----------
+let ac = null, engineGain = null, muted = false, noiseBuf = null;
+function audioOn() {
+  if (ac || muted) { if (ac && ac.state === 'suspended') ac.resume(); return; }
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    ac = new AC();
+    noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+    const d = noiseBuf.getChannelData(0); let last = 0;
+    for (let i = 0; i < d.length; i++) { last = last * 0.96 + (Math.random() * 2 - 1) * 0.3; d[i] = last; }
+    const src = ac.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520;
+    engineGain = ac.createGain(); engineGain.gain.value = 0;
+    src.connect(lp).connect(engineGain).connect(ac.destination); src.start();
+  } catch (e) { ac = null; }
+}
+function sfxBoom() {
+  if (!ac || muted) return;
+  const src = ac.createBufferSource(); src.buffer = noiseBuf;
+  const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(900, ac.currentTime); lp.frequency.exponentialRampToValueAtTime(60, ac.currentTime + 1.6);
+  const g = ac.createGain(); g.gain.setValueAtTime(1.6, ac.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 1.8);
+  src.connect(lp).connect(g).connect(ac.destination); src.start(); src.stop(ac.currentTime + 1.9);
+}
+function sfxCatch() {
+  if (!ac || muted) return;
+  [[196, 0], [294, 0.09], [392, 0.18]].forEach(([f, d]) => {
+    const o = ac.createOscillator(), g = ac.createGain(); o.type = 'triangle'; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, ac.currentTime + d); g.gain.exponentialRampToValueAtTime(0.18, ac.currentTime + d + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + d + 0.7);
+    o.connect(g).connect(ac.destination); o.start(ac.currentTime + d); o.stop(ac.currentTime + d + 0.8);
+  });
+}
+function toggleMute() {
+  muted = !muted;
+  const b = $('mute'); b.textContent = muted ? 'Muted' : 'Mute'; b.setAttribute('aria-pressed', String(muted));
+  if (!muted) audioOn();
+}
+$('mute').addEventListener('click', toggleMute);
+
+// ---------- loop ----------
+let lastT = 0, acc = 0;
+function frame(ms) {
+  const now = ms / 1000;
+  const dt = Math.min(0.05, now - lastT || 0); lastT = now;
+  acc += dt;
+  while (acc >= STEP) { step(STEP); acc -= STEP; }
+  moveCamera(dt);
+  if (engineGain) engineGain.gain.setTargetAtTime(ship.burning && !muted ? 0.55 : 0, ac.currentTime, 0.05);
+  render(now, dt);
+  radar();
+  hud();
+  requestAnimationFrame(frame);
+}
+
+showCard('<div class="eyebrow">Ship return · catch attempt</div><h1>Tower Catch</h1><p>Painting the steel, tiles and concrete…</p>', null);
+setTimeout(() => {
+  let ok3d = true;
+  try { if (!window.THREE) throw new Error('no three'); buildScene(); } catch (e) { ok3d = false; }
+  if (ok3d) {
+    addEventListener('resize', resize);
+    resize();
+    titleCard();
+    requestAnimationFrame(frame);
+    return;
+  }
+  showCard('<div class="eyebrow">Cannot start</div><h1 class="fail">No 3D</h1><p>This browser could not start WebGL, which the game needs to draw its 3D scene. Try another browser or turn on hardware acceleration.</p>', null);
+}, 60);
+
+// hook for automated play-testing
+window.__tc = { input, step, start: () => act(), state: () => ({ mode, level, score, ship, fuelMax, wind, armAngle }), consts: { ARM, PIN, TARGET_X, CP, SP }, setAssist };
+})();
+</script>
+</body>
+</html>
