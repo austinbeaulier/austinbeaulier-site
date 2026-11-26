@@ -17,7 +17,7 @@
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
   #app{display:flex;flex-direction:column;height:100%}
-  header{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:10px 14px;background:var(--panel);border-bottom:1px solid #22344a;z-index:5;position:sticky;top:0}
+  header{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:10px 14px;background:var(--panel);border-bottom:1px solid #22344a;z-index:11;position:sticky;top:0}
   h1{font-size:16px;margin:0;font-weight:700;white-space:nowrap}
   #guess{flex:1 1 220px;min-width:160px;font-size:16px;padding:10px 12px;border-radius:10px;border:2px solid #2c4560;background:#0a1320;color:var(--text);outline:none;transition:border-color .15s}
   #guess:focus{border-color:#4f86c6}
@@ -68,7 +68,7 @@
 <body>
 <div id="app">
   <header>
-    <a class="back" href="../" aria-label="All quizzes">← Quizzes</a>
+    <a class="back" href="/quiz/" aria-label="All quizzes">← Quizzes</a>
     <h1>🇺🇸 Presidents Quiz</h1>
     <input id="guess" type="text" placeholder="Type a president…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" disabled>
     <div class="stat"><small>Found</small><span id="score">0</span>/<span id="total">0</span></div>
