@@ -40,4 +40,20 @@
       <image:loc>https://austinbeaulier.com/starship/preview.jpg</image:loc>
     </image:image>
   </url>
+  <url>
+    <loc>https://austinbeaulier.com/quiz/</loc>
+    <lastmod>2026-11-26</lastmod>
+  </url>
+  <url>
+    <loc>https://austinbeaulier.com/quiz/countries/</loc>
+    <lastmod>2026-11-26</lastmod>
+  </url>
+  <url>
+    <loc>https://austinbeaulier.com/quiz/capitals/</loc>
+    <lastmod>2026-11-26</lastmod>
+  </url>
+  <url>
+    <loc>https://austinbeaulier.com/quiz/presidents/</loc>
+    <lastmod>2026-11-26</lastmod>
+  </url>
 </urlset>
