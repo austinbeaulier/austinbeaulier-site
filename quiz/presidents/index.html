@@ -216,6 +216,7 @@ function markFound(list) {
   scoreEl.textContent = found.size;
   msgEl.textContent = "✓ " + who;
   if (found.size === total) end(false);
+  return who;
 }
 const unfoundIn = list => list.some(j => !found.has(j));
 // True if a longer name that's still to find starts with n
@@ -223,12 +224,14 @@ function leadsToUnfound(n) {
   for (const [a, l] of aliasMap) if (a.length > n.length && a.startsWith(n) && unfoundIn(l)) return true;
   return false;
 }
+// True if `who` has a longer way of writing it that starts with n ("Everything Everywhere" -> "...All at Once")
+const longerFor = (who, n) => P.some(p => p.name === who && p.alts.some(a => { a = norm(a); return a.length > n.length && a.startsWith(n); }));
 
 input.addEventListener("input", () => {
   clearTimeout(clearTimer);
   input.className = "";
   // A just-accepted answer may still be in the box; if the new letters don't lead to a longer
-  // name, drop the accepted part so the next president can be typed straight on.
+  // name, drop the accepted part so the next answer can be typed straight on.
   if (pending) {
     if (!input.value.startsWith(pending.text)) pending = null;
     else if (!allNorms.some(a => a.startsWith(norm(input.value)))) {
@@ -242,18 +245,22 @@ input.addEventListener("input", () => {
   if (!list) return;
 
   if (!unfoundIn(list)) {
+    // Still typing out the answer that was just accepted: clear once it's complete, stay quiet meanwhile
+    if (pending && pending.who && list.some(j => P[j].name === pending.who)) {
+      if (!longerFor(pending.who, n) && !leadsToUnfound(n)) { input.value = ""; pending = null; }
+      return;
+    }
     if (leadsToUnfound(n)) { pending = { text: input.value, who: null }; return; } // keep typing toward a longer name
-    if (pending && n !== norm(pending.text) && list.some(j => P[j].name === pending.who)) { input.value = ""; pending = null; return; }
-    input.className = "dup"; msgEl.textContent = "Already got " + (list.length > 1 ? "every " + input.value.trim() : P[list[0]].name);
+    input.className = "dup"; msgEl.textContent = "Already got " + (new Set(list.map(j => P[j].name)).size > 1 ? "every " + input.value.trim() : P[list[0]].name);
     clearTimer = setTimeout(() => { input.value = ""; input.className = ""; pending = null; }, 700);
-    pending = { text: input.value, who: null, i: -1 }; // typing on past it drops it
+    pending = { text: input.value, who: null }; // typing on past it drops it
     return;
   }
 
-  markFound(list);
+  const who = markFound(list);
   input.className = "ok";
-  if (leadsToUnfound(n)) {
-    pending = { text: input.value, who: P[list[0]].name };
+  if (leadsToUnfound(n) || longerFor(who, n)) {
+    pending = { text: input.value, who };
   } else {
     input.value = ""; pending = null;
     setTimeout(() => { if (!input.value) input.className = ""; }, 250);
