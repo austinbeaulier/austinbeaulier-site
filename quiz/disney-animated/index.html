@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Disney Animated Movies Quiz</title>
+<meta name="description" content="Name all 65 Walt Disney Animation Studios feature films, from Snow White to today, before time runs out. Free, no Enter key.">
+<meta name="author" content="Austin Beaulier">
+<link rel="canonical" href="https://austinbeaulier.com/quiz/disney-animated/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Austin Beaulier">
+<meta property="og:description" content="Name all 65 Walt Disney Animation Studios feature films, from Snow White to today, before time runs out. Free, no Enter key.">
+<meta property="og:url" content="https://austinbeaulier.com/quiz/disney-animated/">
+<meta name="theme-color" content="#0f1b2a">
+<style>
+  :root{--bg:#0f1b2a;--card:#1a2b3f;--green:#2fbf5f;--greenDark:#1e8c43;--red:#e5383b;--text:#eef3f8;--muted:#9fb0c2;--panel:#0b1522ee}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  #app{display:flex;flex-direction:column;height:100%}
+  header{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:10px 14px;background:var(--panel);border-bottom:1px solid #22344a;z-index:11;position:sticky;top:0}
+  h1{font-size:16px;margin:0;font-weight:700;white-space:nowrap}
+  #guess{flex:1 1 220px;min-width:160px;font-size:16px;padding:10px 12px;border-radius:10px;border:2px solid #2c4560;background:#0a1320;color:var(--text);outline:none;transition:border-color .15s}
+  #guess:focus{border-color:#4f86c6}
+  #guess.ok{border-color:var(--green)}
+  #guess.dup{border-color:#d9a400}
+  #guess:disabled{opacity:.5}
+  .stat{font-variant-numeric:tabular-nums;font-weight:700;font-size:18px;white-space:nowrap}
+  .stat small{display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  #timer.low{color:var(--red)}
+  button{font:inherit;font-size:14px;font-weight:600;padding:9px 14px;border-radius:10px;border:0;cursor:pointer;background:#24384f;color:var(--text)}
+  button:hover{background:#2d4763}
+  button.primary{background:var(--green);color:#06210f}
+  button.primary:hover{background:#3ad06c}
+  button.danger{background:#5a2328}
+  button.danger:hover{background:#73292f}
+  #msg{font-size:13px;color:var(--muted);min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  main{position:relative;flex:1;overflow:auto;padding:14px}
+  #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;max-width:1400px;margin:0 auto}
+  .p{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid #243a52;border-radius:12px;padding:9px 10px;min-height:58px;transition:background .35s,border-color .35s}
+  .num{font-weight:800;font-size:13px;color:var(--muted);width:28px;text-align:right;flex:none;font-variant-numeric:tabular-nums}
+  .dot{width:26px;height:26px;border-radius:50%;background:var(--red);border:2px solid #fff;color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;flex:none;transition:background .3s}
+  .info{min-width:0}
+  .name{font-weight:700;font-size:14px;line-height:1.2;min-height:17px}
+  .yrs{font-size:12px;color:var(--muted);margin-top:2px}
+  .p.found{background:#1f6b3b;border-color:var(--green)}
+  .p.found .dot{background:var(--greenDark)}
+  .p.found .yrs{color:#cdeed8}
+  .p.missed{background:#4a2226;border-color:#7a2f33}
+  .p.missed .dot{background:#fff;color:var(--red);border-color:var(--red)}
+  .p.missed .name{color:#ffb3b5}
+  .p.pop{animation:pop .5s}
+  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+  .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#060d17cc;z-index:10;padding:16px}
+  .card{background:#0f1d2e;border:1px solid #2a4058;border-radius:16px;padding:24px;max-width:520px;width:100%;max-height:90%;overflow:auto;box-shadow:0 20px 60px #0008}
+  .card h2{margin:0 0 6px;font-size:24px}
+  .card p{color:var(--muted);margin:6px 0 16px;line-height:1.45}
+  .times{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .times button.sel{outline:2px solid var(--green)}
+  .big{font-size:42px;font-weight:800;margin:4px 0}
+  #missedList{columns:2;column-gap:18px;font-size:13px;color:#ffb3b5;margin:10px 0 16px;padding:0;list-style:none}
+  #missedList li{break-inside:avoid;padding:2px 0}
+  .hidden{display:none!important}
+  @media (max-width:600px){ h1{display:none} header{padding:8px 10px;gap:8px} #msg{flex-basis:100%;min-width:0} button{padding:8px 11px} main{padding:10px} #grid{grid-template-columns:repeat(2,1fr);gap:6px} .p{padding:7px 8px;gap:7px} .name{font-size:13px} }
+  .back{color:#9fb0c2;text-decoration:none;font-size:13px;font-weight:600;white-space:nowrap;padding:6px 8px;border-radius:8px;background:#16263a}
+  .back:hover{color:#fff}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <a class="back" href="/quiz/" aria-label="All quizzes">← Quizzes</a>
+    <h1>🏰 Disney Animated Quiz</h1>
+    <input id="guess" type="text" placeholder="Type a movie…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" disabled>
+    <div class="stat"><small>Found</small><span id="score">0</span>/<span id="total">0</span></div>
+    <div class="stat"><small>Time</small><span id="timer">8:00</span></div>
+    <button id="giveUp" class="danger hidden">Give up</button>
+    <button id="restart" class="hidden">New game</button>
+    <div id="msg"></div>
+  </header>
+  <main><div id="grid"></div></main>
+
+  <div id="startOv" class="overlay">
+    <div class="card">
+      <h2>Disney Animated Feature Films</h2>
+      <p>Name all <b id="totalStart"></b> Walt Disney Animation Studios features, in release order from <i>Snow White</i> (1937) to today. Each spot shows its year. Just type — no Enter needed. You can skip "The" and "A".</p>
+      <div class="times" id="times">
+        <button data-m="3">3 min</button><button data-m="5">5 min</button><button data-m="8" class="sel">8 min</button><button data-m="12">12 min</button>
+      </div>
+      <button class="primary" id="startBtn" style="width:100%;font-size:17px;padding:13px">Start</button>
+      <p id="best" style="margin:12px 0 0;font-size:13px"></p>
+    </div>
+  </div>
+
+  <div id="endOv" class="overlay hidden">
+    <div class="card">
+      <h2 id="endTitle">Time's up!</h2>
+      <div class="big"><span id="endScore"></span></div>
+      <p id="endSub"></p>
+      <div id="missedWrap"><b>Missed:</b><ul id="missedList"></ul></div>
+      <div style="display:flex;gap:8px">
+        <button id="viewMap" style="flex:1">See answers</button>
+        <button class="primary" id="again" style="flex:1">Play again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// [display name, years, extra aliases...]
+const RAW = [["Snow White and the Seven Dwarfs", "1937", "Snow White and the Seven Dwarfs", "Snow White"], ["Pinocchio", "1940", "Pinocchio"], ["Fantasia", "1940", "Fantasia"], ["Dumbo", "1941", "Dumbo"], ["Bambi", "1942", "Bambi"], ["Saludos Amigos", "1942", "Saludos Amigos"], ["The Three Caballeros", "1944", "The Three Caballeros", "Three Caballeros"], ["Make Mine Music", "1946", "Make Mine Music"], ["Fun and Fancy Free", "1947", "Fun and Fancy Free"], ["Melody Time", "1948", "Melody Time"], ["The Adventures of Ichabod and Mr. Toad", "1949", "The Adventures of Ichabod and Mr. Toad", "Ichabod and Mr Toad", "Ichabod", "Mr Toad", "Adventures of Ichabod and Mr. Toad"], ["Cinderella", "1950", "Cinderella"], ["Alice in Wonderland", "1951", "Alice in Wonderland"], ["Peter Pan", "1953", "Peter Pan"], ["Lady and the Tramp", "1955", "Lady and the Tramp"], ["Sleeping Beauty", "1959", "Sleeping Beauty"], ["One Hundred and One Dalmatians", "1961", "One Hundred and One Dalmatians", "101 Dalmatians", "Hundred and One Dalmatians"], ["The Sword in the Stone", "1963", "The Sword in the Stone", "Sword in the Stone"], ["The Jungle Book", "1967", "The Jungle Book", "Jungle Book"], ["The Aristocats", "1970", "The Aristocats", "Aristocats"], ["Robin Hood", "1973", "Robin Hood"], ["The Many Adventures of Winnie the Pooh", "1977", "The Many Adventures of Winnie the Pooh", "Many Adventures of Winnie the Pooh"], ["The Rescuers", "1977", "The Rescuers", "Rescuers"], ["The Fox and the Hound", "1981", "The Fox and the Hound", "Fox and the Hound"], ["The Black Cauldron", "1985", "The Black Cauldron", "Black Cauldron"], ["The Great Mouse Detective", "1986", "The Great Mouse Detective", "Great Mouse Detective"], ["Oliver & Company", "1988", "Oliver & Company", "Oliver and Company"], ["The Little Mermaid", "1989", "The Little Mermaid", "Little Mermaid"], ["The Rescuers Down Under", "1990", "The Rescuers Down Under", "Rescuers Down Under"], ["Beauty and the Beast", "1991", "Beauty and the Beast"], ["Aladdin", "1992", "Aladdin"], ["The Lion King", "1994", "The Lion King", "Lion King"], ["Pocahontas", "1995", "Pocahontas"], ["The Hunchback of Notre Dame", "1996", "The Hunchback of Notre Dame", "Hunchback", "Hunchback of Notre Dame"], ["Hercules", "1997", "Hercules"], ["Mulan", "1998", "Mulan"], ["Tarzan", "1999", "Tarzan"], ["Fantasia 2000", "1999", "Fantasia 2000"], ["Dinosaur", "2000", "Dinosaur"], ["The Emperor's New Groove", "2000", "The Emperor's New Groove", "Emperor's New Groove"], ["Atlantis: The Lost Empire", "2001", "Atlantis: The Lost Empire", "Atlantis"], ["Lilo & Stitch", "2002", "Lilo & Stitch", "Lilo and Stitch"], ["Treasure Planet", "2002", "Treasure Planet"], ["Brother Bear", "2003", "Brother Bear"], ["Home on the Range", "2004", "Home on the Range"], ["Chicken Little", "2005", "Chicken Little"], ["Meet the Robinsons", "2007", "Meet the Robinsons"], ["Bolt", "2008", "Bolt"], ["The Princess and the Frog", "2009", "The Princess and the Frog", "Princess and the Frog"], ["Tangled", "2010", "Tangled"], ["Winnie the Pooh", "2011", "Winnie the Pooh"], ["Wreck-It Ralph", "2012", "Wreck-It Ralph"], ["Frozen", "2013", "Frozen"], ["Big Hero 6", "2014", "Big Hero 6", "Big Hero Six"], ["Zootopia", "2016", "Zootopia", "Zootropolis"], ["Moana", "2016", "Moana"], ["Ralph Breaks the Internet", "2018", "Ralph Breaks the Internet", "Wreck-It Ralph 2"], ["Frozen II", "2019", "Frozen II", "Frozen 2"], ["Raya and the Last Dragon", "2021", "Raya and the Last Dragon", "Raya"], ["Encanto", "2021", "Encanto"], ["Strange World", "2022", "Strange World"], ["Wish", "2023", "Wish"], ["Moana 2", "2024", "Moana 2"], ["Zootopia 2", "2025", "Zootopia 2", "Zootropolis 2"], ["Hexed", "2026", "Hexed"]];
+const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/&/g, " and ").replace(/^the\s+/, "").replace(/[^a-z0-9]/g, "");
+
+const P = RAW.map(([name, yrs, ...alts], i) => ({ i, n: i + 1, name, yrs, alts }));
+// alias -> list of presidency indices (shared surnames list several, oldest first)
+const aliasMap = new Map();
+P.forEach(p => p.alts.map(norm).forEach(a => {
+  if (!aliasMap.has(a)) aliasMap.set(a, []);
+  const l = aliasMap.get(a); if (!l.includes(p.i)) l.push(p.i);
+}));
+const allNorms = [...aliasMap.keys()];
+const total = P.length;
+document.getElementById("total").textContent = total;
+document.getElementById("totalStart").textContent = total;
+
+const grid = document.getElementById("grid");
+grid.innerHTML = P.map(p => `<div class="p" id="p${p.i}"><div class="num">${p.n}</div><div class="dot">?</div><div class="info"><div class="name"></div><div class="yrs">${p.yrs}</div></div></div>`).join("");
+const el = i => document.getElementById("p" + i);
+
+const input = document.getElementById("guess");
+const scoreEl = document.getElementById("score"), timerEl = document.getElementById("timer"), msgEl = document.getElementById("msg");
+let found = new Set(), minutes = 8, endAt = 0, tick = null, over = false, clearTimer = null, pending = null;
+const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
+
+document.querySelectorAll("#times button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#times button").forEach(x => x.classList.remove("sel"));
+  b.classList.add("sel"); minutes = +b.dataset.m; timerEl.textContent = fmt(minutes * 60000); showBest();
+});
+function getBest() { try { return JSON.parse(localStorage.getItem("dis-best") || "{}"); } catch (e) { return {}; } }
+function showBest() { const b = getBest()[minutes]; document.getElementById("best").textContent = b != null ? `Your best at ${minutes} min: ${b}/${total}` : ""; }
+showBest();
+
+function reset() {
+  found = new Set(); over = false; pending = null;
+  P.forEach(p => { const e = el(p.i); e.className = "p"; e.querySelector(".dot").textContent = "?"; e.querySelector(".name").textContent = ""; });
+  scoreEl.textContent = 0; msgEl.textContent = ""; input.value = ""; input.className = "";
+}
+function start() {
+  reset();
+  document.getElementById("startOv").classList.add("hidden");
+  document.getElementById("endOv").classList.add("hidden");
+  document.getElementById("giveUp").classList.remove("hidden");
+  document.getElementById("restart").classList.add("hidden");
+  input.disabled = false; input.focus();
+  endAt = Date.now() + minutes * 60000;
+  clearInterval(tick);
+  tick = setInterval(() => {
+    const left = endAt - Date.now();
+    timerEl.textContent = fmt(left);
+    timerEl.classList.toggle("low", left < 60000);
+    if (left <= 0) end(false);
+  }, 200);
+}
+function end(gaveUp) {
+  if (over) return;
+  over = true; clearInterval(tick); input.disabled = true; input.blur();
+  document.getElementById("giveUp").classList.add("hidden");
+  document.getElementById("restart").classList.remove("hidden");
+  const missed = P.filter(p => !found.has(p.i));
+  missed.forEach(p => { const e = el(p.i); e.classList.add("missed"); e.querySelector(".dot").textContent = "!"; e.querySelector(".name").textContent = p.name; });
+  const n = found.size;
+  document.getElementById("endTitle").textContent = n === total ? "You named them all! 🎉" : gaveUp ? "Game over" : "Time's up!";
+  document.getElementById("endScore").textContent = `${n} / ${total}`;
+  const used = fmt(minutes * 60000 - Math.max(0, endAt - Date.now()));
+  let sub = `${Math.round(n / total * 100)}% of the films in ${used}.`;
+  const best = getBest();
+  if (best[minutes] == null || n > best[minutes]) { if (n > 0) sub += " New personal best!"; best[minutes] = n; try { localStorage.setItem("dis-best", JSON.stringify(best)); } catch (e) {} }
+  document.getElementById("endSub").textContent = sub;
+  document.getElementById("missedWrap").classList.toggle("hidden", !missed.length);
+  document.getElementById("missedList").innerHTML = missed.map(p => `<li>${p.n}. ${p.name}</li>`).join("");
+  document.getElementById("endOv").classList.remove("hidden");
+  msgEl.textContent = "Missed films are shown in red";
+  showBest();
+}
+
+function fill(i) {
+  found.add(i);
+  const e = el(i);
+  e.classList.add("found", "pop"); setTimeout(() => e.classList.remove("pop"), 500);
+  e.querySelector(".dot").textContent = "✓";
+  e.querySelector(".name").textContent = P[i].name;
+}
+// Mark the oldest unfound presidency for this alias; a person who served twice fills both spots.
+function markFound(list) {
+  const i = list.find(j => !found.has(j));
+  const who = P[i].name;
+  P.forEach(p => { if (p.name === who && !found.has(p.i)) fill(p.i); });
+  scoreEl.textContent = found.size;
+  msgEl.textContent = "✓ " + who;
+  if (found.size === total) end(false);
+  return who;
+}
+const unfoundIn = list => list.some(j => !found.has(j));
+// True if a longer name that's still to find starts with n
+function leadsToUnfound(n) {
+  for (const [a, l] of aliasMap) if (a.length > n.length && a.startsWith(n) && unfoundIn(l)) return true;
+  return false;
+}
+// True if `who` has a longer way of writing it that starts with n ("Everything Everywhere" -> "...All at Once")
+const longerFor = (who, n) => P.some(p => p.name === who && p.alts.some(a => { a = norm(a); return a.length > n.length && a.startsWith(n); }));
+
+input.addEventListener("input", () => {
+  clearTimeout(clearTimer);
+  input.className = "";
+  // A just-accepted answer may still be in the box; if the new letters don't lead to a longer
+  // name, drop the accepted part so the next answer can be typed straight on.
+  if (pending) {
+    if (!input.value.startsWith(pending.text)) pending = null;
+    else if (!allNorms.some(a => a.startsWith(norm(input.value)))) {
+      input.value = input.value.slice(pending.text.length).trimStart();
+      pending = null;
+    }
+  }
+  const n = norm(input.value);
+  if (!n) return;
+  const list = aliasMap.get(n);
+  if (!list) return;
+
+  if (!unfoundIn(list)) {
+    // Still typing out the answer that was just accepted: clear once it's complete, stay quiet meanwhile
+    if (pending && pending.who && list.some(j => P[j].name === pending.who)) {
+      if (!longerFor(pending.who, n) && !leadsToUnfound(n)) { input.value = ""; pending = null; }
+      return;
+    }
+    if (leadsToUnfound(n)) { pending = { text: input.value, who: null }; return; } // keep typing toward a longer name
+    input.className = "dup"; msgEl.textContent = "Already got " + (new Set(list.map(j => P[j].name)).size > 1 ? "every " + input.value.trim() : P[list[0]].name);
+    clearTimer = setTimeout(() => { input.value = ""; input.className = ""; pending = null; }, 700);
+    pending = { text: input.value, who: null }; // typing on past it drops it
+    return;
+  }
+
+  const who = markFound(list);
+  input.className = "ok";
+  if (leadsToUnfound(n) || longerFor(who, n)) {
+    pending = { text: input.value, who };
+  } else {
+    input.value = ""; pending = null;
+    setTimeout(() => { if (!input.value) input.className = ""; }, 250);
+  }
+});
+
+document.getElementById("startBtn").onclick = start;
+document.getElementById("again").onclick = () => { document.getElementById("endOv").classList.add("hidden"); document.getElementById("startOv").classList.remove("hidden"); };
+document.getElementById("restart").onclick = () => { reset(); document.getElementById("startOv").classList.remove("hidden"); timerEl.textContent = fmt(minutes * 60000); };
+document.getElementById("viewMap").onclick = () => document.getElementById("endOv").classList.add("hidden");
+document.getElementById("giveUp").onclick = () => end(true);
+timerEl.textContent = fmt(minutes * 60000);
+</script>
+</body>
+</html>
