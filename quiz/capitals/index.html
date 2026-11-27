@@ -98,6 +98,7 @@
           <button data-m="2">2 min</button><button data-m="3">3 min</button><button data-m="5" class="sel">5 min</button><button data-m="10">10 min</button>
         </div>
         <button class="primary" id="startBtn" style="width:100%;font-size:17px;padding:13px">Start</button>
+        <button id="hsBtn" style="width:100%;margin-top:8px">🏆 High scores</button>
         <p id="best" style="margin:12px 0 0;font-size:13px"></p>
       </div>
     </div>
@@ -107,6 +108,7 @@
         <h2 id="endTitle">Time's up!</h2>
         <div class="big"><span id="endScore"></span></div>
         <p id="endSub"></p>
+        <div id="hsEnd"></div>
         <div id="missedWrap"><b>Missed:</b><ul id="missedList"></ul></div>
         <div style="display:flex;gap:8px">
           <button id="viewMap" style="flex:1">See map</button>
@@ -260,6 +262,7 @@ function end(gaveUp) {
   document.getElementById("missedWrap").classList.toggle("hidden", !missed.length);
   document.getElementById("missedList").innerHTML = missed.map(c => `<li>${c.tip || c.name}</li>`).join("");
   document.getElementById("endOv").classList.remove("hidden");
+  if (window.QuizHS) QuizHS.ended(n, Math.max(1, Math.round((minutes * 60000 - Math.max(0, endAt - Date.now())) / 1000)), minutes);
   msgEl.textContent = "Missed capitals are marked ! — tap any circle to see its state";
   showBest();
 }
@@ -344,5 +347,7 @@ document.getElementById("giveUp").onclick = () => end(true);
 timerEl.textContent = fmt(minutes * 60000);
 fitView();
 </script>
+<script src="/quiz/scoreboard.js"></script>
+<script>QuizHS.init("capitals", total, () => minutes);</script>
 </body>
 </html>
