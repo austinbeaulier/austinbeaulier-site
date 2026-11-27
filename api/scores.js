@@ -12,6 +12,7 @@ const QUIZZES = {
   "afi-top-100":     { total: 200, minutes: [5, 10, 15, 20] },
   "best-picture":    { total: 98,  minutes: [5, 10, 15, 20] },
   "disney-animated": { total: 65,  minutes: [3, 5, 8, 12] },
+  "beatles-songs":   { total: 213, minutes: [10, 15, 20, 30] },
 };
 const KEEP = 100; // entries stored per board
 const SHOW = 10;  // entries returned

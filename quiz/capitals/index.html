@@ -297,6 +297,17 @@ function leadsToUnfound(n) {
 }
 const allNorms = COUNTRIES.flatMap(c => c.norms);
 
+// Where a finished answer ends and the next one starts: the shortest answer at the
+// front of the box whose leftover letters could still become an answer.
+function afterAnswer(v) {
+  for (let k = 1; k <= v.length; k++) {
+    if (!aliasMap.has(norm(v.slice(0, k)))) continue;
+    const rest = v.slice(k).trimStart(), nr = norm(rest);
+    if (!nr || allNorms.some(a => a.startsWith(nr))) return rest;
+  }
+  return null;
+}
+
 input.addEventListener("input", () => {
   clearTimeout(clearTimer);
   input.className = "";
@@ -305,7 +316,8 @@ input.addEventListener("input", () => {
   if (pending) {
     if (!input.value.startsWith(pending.text)) pending = null;
     else if (!allNorms.some(a => a.startsWith(norm(input.value)))) {
-      input.value = input.value.slice(pending.text.length).trimStart();
+      const rest = afterAnswer(input.value);
+      if (rest !== null) input.value = rest;
       pending = null;
     }
   }

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Beatles Songs Quiz</title>
+<meta name="description" content="Name every Beatles song, album by album, from Please Please Me to Let It Be plus the non-album singles. Free, no Enter key.">
+<meta name="author" content="Austin Beaulier">
+<link rel="canonical" href="https://austinbeaulier.com/quiz/beatles-songs/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Austin Beaulier">
+<meta property="og:description" content="Name every Beatles song, album by album, from Please Please Me to Let It Be plus the non-album singles. Free, no Enter key.">
+<meta property="og:url" content="https://austinbeaulier.com/quiz/beatles-songs/">
+<meta name="theme-color" content="#0f1b2a">
+<style>
+  :root{--bg:#0f1b2a;--card:#1a2b3f;--green:#2fbf5f;--greenDark:#1e8c43;--red:#e5383b;--text:#eef3f8;--muted:#9fb0c2;--panel:#0b1522ee}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  #app{display:flex;flex-direction:column;height:100%}
+  header{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:10px 14px;background:var(--panel);border-bottom:1px solid #22344a;z-index:11;position:sticky;top:0}
+  h1{font-size:16px;margin:0;font-weight:700;white-space:nowrap}
+  #guess{flex:1 1 220px;min-width:160px;font-size:16px;padding:10px 12px;border-radius:10px;border:2px solid #2c4560;background:#0a1320;color:var(--text);outline:none;transition:border-color .15s}
+  #guess:focus{border-color:#4f86c6}
+  #guess.ok{border-color:var(--green)}
+  #guess.dup{border-color:#d9a400}
+  #guess:disabled{opacity:.5}
+  .stat{font-variant-numeric:tabular-nums;font-weight:700;font-size:18px;white-space:nowrap}
+  .stat small{display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  #timer.low{color:var(--red)}
+  button{font:inherit;font-size:14px;font-weight:600;padding:9px 14px;border-radius:10px;border:0;cursor:pointer;background:#24384f;color:var(--text)}
+  button:hover{background:#2d4763}
+  button.primary{background:var(--green);color:#06210f}
+  button.primary:hover{background:#3ad06c}
+  button.danger{background:#5a2328}
+  button.danger:hover{background:#73292f}
+  #msg{font-size:13px;color:var(--muted);min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  main{position:relative;flex:1;overflow:auto;padding:14px}
+  #grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:22px;max-width:1500px;margin:0 auto;align-items:start}
+  .grp h3{margin:0 0 10px;font-size:15px;letter-spacing:.4px;text-transform:uppercase;color:#c9d6e3;position:sticky;top:0;background:var(--bg);padding:6px 0;z-index:2}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:8px}
+  .p{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid #243a52;border-radius:12px;padding:9px 10px;min-height:58px;transition:background .35s,border-color .35s}
+  .num{font-weight:800;font-size:13px;color:var(--muted);width:28px;text-align:right;flex:none;font-variant-numeric:tabular-nums}
+  .dot{width:26px;height:26px;border-radius:50%;background:var(--red);border:2px solid #fff;color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;flex:none;transition:background .3s}
+  .info{min-width:0}
+  .name{font-weight:700;font-size:14px;line-height:1.2;min-height:17px}
+  .yrs{font-size:12px;color:var(--muted);margin-top:2px}
+  .p.found{background:#1f6b3b;border-color:var(--green)}
+  .p.found .dot{background:var(--greenDark)}
+  .p.found .yrs{color:#cdeed8}
+  .p.missed{background:#4a2226;border-color:#7a2f33}
+  .p.missed .dot{background:#fff;color:var(--red);border-color:var(--red)}
+  .p.missed .name{color:#ffb3b5}
+  .p.pop{animation:pop .5s}
+  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+  .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#060d17cc;z-index:10;padding:16px}
+  .card{background:#0f1d2e;border:1px solid #2a4058;border-radius:16px;padding:24px;max-width:520px;width:100%;max-height:90%;overflow:auto;box-shadow:0 20px 60px #0008}
+  .card h2{margin:0 0 6px;font-size:24px}
+  .card p{color:var(--muted);margin:6px 0 16px;line-height:1.45}
+  .times{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .times button.sel{outline:2px solid var(--green)}
+  .big{font-size:42px;font-weight:800;margin:4px 0}
+  #missedList{columns:2;column-gap:18px;font-size:13px;color:#ffb3b5;margin:10px 0 16px;padding:0;list-style:none}
+  #missedList li{break-inside:avoid;padding:2px 0}
+  .hidden{display:none!important}
+  @media (max-width:600px){ h1{display:none} header{padding:8px 10px;gap:8px} #msg{flex-basis:100%;min-width:0} button{padding:8px 11px} main{padding:10px} .cards{grid-template-columns:repeat(2,1fr);gap:6px} .p{padding:7px 8px;gap:7px} .name{font-size:13px} }
+  .p{min-height:40px;padding:6px 8px;gap:8px}
+  .dot{width:20px;height:20px;font-size:11px}
+  .name{font-size:13px;min-height:0}
+  .yrs:empty{display:none}
+  .yrs{margin-top:0;font-size:11px}
+  .cards{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+  #grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+  .back{color:#9fb0c2;text-decoration:none;font-size:13px;font-weight:600;white-space:nowrap;padding:6px 8px;border-radius:8px;background:#16263a}
+  .back:hover{color:#fff}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <a class="back" href="/quiz/" aria-label="All quizzes">← Quizzes</a>
+    <h1>🎸 Beatles Songs Quiz</h1>
+    <input id="guess" type="text" placeholder="Type a song…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" disabled>
+    <div class="stat"><small>Found</small><span id="score">0</span>/<span id="total">0</span></div>
+    <div class="stat"><small>Time</small><span id="timer">20:00</span></div>
+    <button id="giveUp" class="danger hidden">Give up</button>
+    <button id="restart" class="hidden">New game</button>
+    <div id="msg"></div>
+  </header>
+  <main><div id="grid"></div></main>
+
+  <div id="startOv" class="overlay">
+    <div class="card">
+      <h2>Every Beatles Song</h2>
+      <p>Name all <b id="totalStart"></b> songs on the Beatles' albums, split up by album — the 13 core albums plus the singles and B-sides from <i>Past Masters</i>. A song on two albums fills both spots.</p><p style="margin-top:-6px">Just type — no Enter needed. You can skip "The" and anything in brackets.</p>
+      <div class="times" id="times">
+        <button data-m="10">10 min</button><button data-m="15">15 min</button><button data-m="20" class="sel">20 min</button><button data-m="30">30 min</button>
+      </div>
+      <button class="primary" id="startBtn" style="width:100%;font-size:17px;padding:13px">Start</button>
+        <button id="hsBtn" style="width:100%;margin-top:8px">🏆 High scores</button>
+      <p id="best" style="margin:12px 0 0;font-size:13px"></p>
+    </div>
+  </div>
+
+  <div id="endOv" class="overlay hidden">
+    <div class="card">
+      <h2 id="endTitle">Time's up!</h2>
+      <div class="big"><span id="endScore"></span></div>
+      <p id="endSub"></p>
+      <div id="hsEnd"></div>
+        <div id="missedWrap"><b>Missed:</b><ul id="missedList"></ul></div>
+      <div style="display:flex;gap:8px">
+        <button id="viewMap" style="flex:1">See answers</button>
+        <button class="primary" id="again" style="flex:1">Play again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// [display name, years, extra aliases...]
+const RAW = [["I Saw Her Standing There", "", "I Saw Her Standing There"], ["Misery", "", "Misery"], ["Anna (Go to Him)", "", "Anna (Go to Him)", "Anna"], ["Chains", "", "Chains"], ["Boys", "", "Boys"], ["Ask Me Why", "", "Ask Me Why"], ["Please Please Me", "", "Please Please Me"], ["Love Me Do", "", "Love Me Do"], ["P.S. I Love You", "", "P.S. I Love You"], ["Baby It's You", "", "Baby It's You"], ["Do You Want to Know a Secret", "", "Do You Want to Know a Secret"], ["A Taste of Honey", "", "A Taste of Honey", "Taste of Honey"], ["There's a Place", "", "There's a Place"], ["Twist and Shout", "", "Twist and Shout"], ["It Won't Be Long", "", "It Won't Be Long"], ["All I've Got to Do", "", "All I've Got to Do"], ["All My Loving", "", "All My Loving"], ["Don't Bother Me", "", "Don't Bother Me"], ["Little Child", "", "Little Child"], ["Till There Was You", "", "Till There Was You"], ["Please Mister Postman", "", "Please Mister Postman", "Please Mr Postman"], ["Roll Over Beethoven", "", "Roll Over Beethoven"], ["Hold Me Tight", "", "Hold Me Tight"], ["You Really Got a Hold on Me", "", "You Really Got a Hold on Me"], ["I Wanna Be Your Man", "", "I Wanna Be Your Man"], ["Devil in Her Heart", "", "Devil in Her Heart"], ["Not a Second Time", "", "Not a Second Time"], ["Money (That's What I Want)", "", "Money (That's What I Want)", "Money"], ["A Hard Day's Night", "", "A Hard Day's Night", "Hard Day's Night"], ["I Should Have Known Better", "", "I Should Have Known Better"], ["If I Fell", "", "If I Fell"], ["I'm Happy Just to Dance with You", "", "I'm Happy Just to Dance with You"], ["And I Love Her", "", "And I Love Her"], ["Tell Me Why", "", "Tell Me Why"], ["Can't Buy Me Love", "", "Can't Buy Me Love"], ["Any Time at All", "", "Any Time at All"], ["I'll Cry Instead", "", "I'll Cry Instead"], ["Things We Said Today", "", "Things We Said Today"], ["When I Get Home", "", "When I Get Home"], ["You Can't Do That", "", "You Can't Do That"], ["I'll Be Back", "", "I'll Be Back"], ["No Reply", "", "No Reply"], ["I'm a Loser", "", "I'm a Loser"], ["Baby's in Black", "", "Baby's in Black"], ["Rock and Roll Music", "", "Rock and Roll Music"], ["I'll Follow the Sun", "", "I'll Follow the Sun"], ["Mr. Moonlight", "", "Mr. Moonlight", "Mister Moonlight"], ["Kansas City / Hey-Hey-Hey-Hey!", "", "Kansas City / Hey-Hey-Hey-Hey!", "Kansas City"], ["Eight Days a Week", "", "Eight Days a Week", "8 Days a Week"], ["Words of Love", "", "Words of Love"], ["Honey Don't", "", "Honey Don't"], ["Every Little Thing", "", "Every Little Thing"], ["I Don't Want to Spoil the Party", "", "I Don't Want to Spoil the Party"], ["What You're Doing", "", "What You're Doing"], ["Everybody's Trying to Be My Baby", "", "Everybody's Trying to Be My Baby"], ["Help!", "", "Help!"], ["The Night Before", "", "The Night Before", "Night Before"], ["You've Got to Hide Your Love Away", "", "You've Got to Hide Your Love Away", "Hide Your Love Away"], ["I Need You", "", "I Need You"], ["Another Girl", "", "Another Girl"], ["You're Going to Lose That Girl", "", "You're Going to Lose That Girl"], ["Ticket to Ride", "", "Ticket to Ride"], ["Act Naturally", "", "Act Naturally"], ["It's Only Love", "", "It's Only Love"], ["You Like Me Too Much", "", "You Like Me Too Much"], ["Tell Me What You See", "", "Tell Me What You See"], ["I've Just Seen a Face", "", "I've Just Seen a Face"], ["Yesterday", "", "Yesterday"], ["Dizzy Miss Lizzy", "", "Dizzy Miss Lizzy"], ["Drive My Car", "", "Drive My Car"], ["Norwegian Wood (This Bird Has Flown)", "", "Norwegian Wood (This Bird Has Flown)", "Norwegian Wood"], ["You Won't See Me", "", "You Won't See Me"], ["Nowhere Man", "", "Nowhere Man"], ["Think for Yourself", "", "Think for Yourself"], ["The Word", "", "The Word", "Word"], ["Michelle", "", "Michelle"], ["What Goes On", "", "What Goes On"], ["Girl", "", "Girl"], ["I'm Looking Through You", "", "I'm Looking Through You"], ["In My Life", "", "In My Life"], ["Wait", "", "Wait"], ["If I Needed Someone", "", "If I Needed Someone"], ["Run for Your Life", "", "Run for Your Life"], ["Taxman", "", "Taxman"], ["Eleanor Rigby", "", "Eleanor Rigby"], ["I'm Only Sleeping", "", "I'm Only Sleeping"], ["Love You To", "", "Love You To"], ["Here, There and Everywhere", "", "Here, There and Everywhere"], ["Yellow Submarine", "", "Yellow Submarine"], ["She Said She Said", "", "She Said She Said"], ["Good Day Sunshine", "", "Good Day Sunshine"], ["And Your Bird Can Sing", "", "And Your Bird Can Sing"], ["For No One", "", "For No One"], ["Doctor Robert", "", "Doctor Robert", "Dr Robert"], ["I Want to Tell You", "", "I Want to Tell You"], ["Got to Get You into My Life", "", "Got to Get You into My Life"], ["Tomorrow Never Knows", "", "Tomorrow Never Knows"], ["Sgt. Pepper's Lonely Hearts Club Band", "", "Sgt. Pepper's Lonely Hearts Club Band", "Sgt Pepper", "Sgt Peppers", "Sergeant Pepper", "Sergeant Peppers", "Sergeant Pepper's Lonely Hearts Club Band"], ["With a Little Help from My Friends", "", "With a Little Help from My Friends"], ["Lucy in the Sky with Diamonds", "", "Lucy in the Sky with Diamonds", "Lucy in the Sky"], ["Getting Better", "", "Getting Better"], ["Fixing a Hole", "", "Fixing a Hole"], ["She's Leaving Home", "", "She's Leaving Home"], ["Being for the Benefit of Mr. Kite!", "", "Being for the Benefit of Mr. Kite!", "Mr Kite", "Mister Kite", "Being for the Benefit of Mister Kite!"], ["Within You Without You", "", "Within You Without You"], ["When I'm Sixty-Four", "", "When I'm Sixty-Four", "When I'm 64"], ["Lovely Rita", "", "Lovely Rita"], ["Good Morning Good Morning", "", "Good Morning Good Morning"], ["Sgt. Pepper's Lonely Hearts Club Band", "Reprise", "Sgt. Pepper's Lonely Hearts Club Band", "Sgt Pepper", "Sgt Peppers", "Sergeant Pepper", "Sergeant Peppers", "Sergeant Pepper's Lonely Hearts Club Band"], ["A Day in the Life", "", "A Day in the Life", "Day in the Life"], ["Magical Mystery Tour", "", "Magical Mystery Tour"], ["The Fool on the Hill", "", "The Fool on the Hill", "Fool on the Hill"], ["Flying", "", "Flying"], ["Blue Jay Way", "", "Blue Jay Way"], ["Your Mother Should Know", "", "Your Mother Should Know"], ["I Am the Walrus", "", "I Am the Walrus"], ["Hello, Goodbye", "", "Hello, Goodbye"], ["Strawberry Fields Forever", "", "Strawberry Fields Forever", "Strawberry Fields"], ["Penny Lane", "", "Penny Lane"], ["Baby, You're a Rich Man", "", "Baby, You're a Rich Man"], ["All You Need Is Love", "", "All You Need Is Love"], ["Back in the U.S.S.R.", "", "Back in the U.S.S.R.", "Back in the USSR"], ["Dear Prudence", "", "Dear Prudence"], ["Glass Onion", "", "Glass Onion"], ["Ob-La-Di, Ob-La-Da", "", "Ob-La-Di, Ob-La-Da"], ["Wild Honey Pie", "", "Wild Honey Pie"], ["The Continuing Story of Bungalow Bill", "", "The Continuing Story of Bungalow Bill", "Bungalow Bill", "Continuing Story of Bungalow Bill"], ["While My Guitar Gently Weeps", "", "While My Guitar Gently Weeps"], ["Happiness Is a Warm Gun", "", "Happiness Is a Warm Gun"], ["Martha My Dear", "", "Martha My Dear"], ["I'm So Tired", "", "I'm So Tired"], ["Blackbird", "", "Blackbird"], ["Piggies", "", "Piggies"], ["Rocky Raccoon", "", "Rocky Raccoon"], ["Don't Pass Me By", "", "Don't Pass Me By"], ["Why Don't We Do It in the Road?", "", "Why Don't We Do It in the Road?"], ["I Will", "", "I Will"], ["Julia", "", "Julia"], ["Birthday", "", "Birthday"], ["Yer Blues", "", "Yer Blues"], ["Mother Nature's Son", "", "Mother Nature's Son"], ["Everybody's Got Something to Hide Except Me and My Monkey", "", "Everybody's Got Something to Hide Except Me and My Monkey", "Everybody's Got Something to Hide"], ["Sexy Sadie", "", "Sexy Sadie"], ["Helter Skelter", "", "Helter Skelter"], ["Long, Long, Long", "", "Long, Long, Long"], ["Revolution 1", "", "Revolution 1"], ["Honey Pie", "", "Honey Pie"], ["Savoy Truffle", "", "Savoy Truffle"], ["Cry Baby Cry", "", "Cry Baby Cry"], ["Revolution 9", "", "Revolution 9"], ["Good Night", "", "Good Night"], ["Yellow Submarine", "", "Yellow Submarine"], ["Only a Northern Song", "", "Only a Northern Song"], ["All Together Now", "", "All Together Now"], ["Hey Bulldog", "", "Hey Bulldog"], ["It's All Too Much", "", "It's All Too Much"], ["All You Need Is Love", "", "All You Need Is Love"], ["Come Together", "", "Come Together"], ["Something", "", "Something"], ["Maxwell's Silver Hammer", "", "Maxwell's Silver Hammer"], ["Oh! Darling", "", "Oh! Darling"], ["Octopus's Garden", "", "Octopus's Garden", "Octopus Garden", "Octopuses Garden"], ["I Want You (She's So Heavy)", "", "I Want You (She's So Heavy)", "I Want You"], ["Here Comes the Sun", "", "Here Comes the Sun"], ["Because", "", "Because"], ["You Never Give Me Your Money", "", "You Never Give Me Your Money"], ["Sun King", "", "Sun King"], ["Mean Mr. Mustard", "", "Mean Mr. Mustard", "Mean Mister Mustard"], ["Polythene Pam", "", "Polythene Pam"], ["She Came In Through the Bathroom Window", "", "She Came In Through the Bathroom Window", "Bathroom Window"], ["Golden Slumbers", "", "Golden Slumbers"], ["Carry That Weight", "", "Carry That Weight"], ["The End", "", "The End", "End"], ["Her Majesty", "", "Her Majesty"], ["Two of Us", "", "Two of Us"], ["Dig a Pony", "", "Dig a Pony"], ["Across the Universe", "", "Across the Universe"], ["I Me Mine", "", "I Me Mine"], ["Dig It", "", "Dig It"], ["Let It Be", "", "Let It Be"], ["Maggie Mae", "", "Maggie Mae"], ["I've Got a Feeling", "", "I've Got a Feeling"], ["One After 909", "", "One After 909"], ["The Long and Winding Road", "", "The Long and Winding Road", "Long and Winding Road"], ["For You Blue", "", "For You Blue"], ["Get Back", "", "Get Back"], ["From Me to You", "", "From Me to You"], ["Thank You Girl", "", "Thank You Girl"], ["She Loves You", "", "She Loves You"], ["I'll Get You", "", "I'll Get You"], ["I Want to Hold Your Hand", "", "I Want to Hold Your Hand"], ["This Boy", "", "This Boy"], ["Long Tall Sally", "", "Long Tall Sally"], ["I Call Your Name", "", "I Call Your Name"], ["Slow Down", "", "Slow Down"], ["Matchbox", "", "Matchbox"], ["I Feel Fine", "", "I Feel Fine"], ["She's a Woman", "", "She's a Woman"], ["Bad Boy", "", "Bad Boy"], ["Yes It Is", "", "Yes It Is"], ["I'm Down", "", "I'm Down"], ["Day Tripper", "", "Day Tripper"], ["We Can Work It Out", "", "We Can Work It Out"], ["Paperback Writer", "", "Paperback Writer"], ["Rain", "", "Rain"], ["Lady Madonna", "", "Lady Madonna"], ["The Inner Light", "", "The Inner Light", "Inner Light"], ["Hey Jude", "", "Hey Jude"], ["Revolution", "", "Revolution"], ["Don't Let Me Down", "", "Don't Let Me Down"], ["The Ballad of John and Yoko", "", "The Ballad of John and Yoko", "Ballad of John and Yoko"], ["Old Brown Shoe", "", "Old Brown Shoe"], ["You Know My Name (Look Up the Number)", "", "You Know My Name (Look Up the Number)", "You Know My Name"]];
+const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/&/g, " and ").replace(/^the\s+/, "").replace(/[^a-z0-9]/g, "");
+
+const P = RAW.map(([name, yrs, ...alts], i) => ({ i, n: i + 1, name, yrs, alts }));
+// alias -> list of presidency indices (shared surnames list several, oldest first)
+const aliasMap = new Map();
+P.forEach(p => p.alts.map(norm).forEach(a => {
+  if (!aliasMap.has(a)) aliasMap.set(a, []);
+  const l = aliasMap.get(a); if (!l.includes(p.i)) l.push(p.i);
+}));
+const allNorms = [...aliasMap.keys()];
+const total = P.length;
+document.getElementById("total").textContent = total;
+document.getElementById("totalStart").textContent = total;
+
+const grid = document.getElementById("grid");
+const GROUPS = [{"title": "Please Please Me \u00b7 1963", "start": 0, "count": 14}, {"title": "With the Beatles \u00b7 1963", "start": 14, "count": 14}, {"title": "A Hard Day's Night \u00b7 1964", "start": 28, "count": 13}, {"title": "Beatles for Sale \u00b7 1964", "start": 41, "count": 14}, {"title": "Help! \u00b7 1965", "start": 55, "count": 14}, {"title": "Rubber Soul \u00b7 1965", "start": 69, "count": 14}, {"title": "Revolver \u00b7 1966", "start": 83, "count": 14}, {"title": "Sgt. Pepper's Lonely Hearts Club Band \u00b7 1967", "start": 97, "count": 13}, {"title": "Magical Mystery Tour \u00b7 1967", "start": 110, "count": 11}, {"title": "The White Album \u00b7 1968", "start": 121, "count": 30}, {"title": "Yellow Submarine \u00b7 1969", "start": 151, "count": 6}, {"title": "Abbey Road \u00b7 1969", "start": 157, "count": 17}, {"title": "Let It Be \u00b7 1970", "start": 174, "count": 12}, {"title": "Singles & B-sides (Past Masters) \u00b7 1962\u201370", "start": 186, "count": 27}];
+GROUPS.forEach(g => { for (let k = 0; k < g.count; k++) P[g.start + k].n = k + 1; });
+const card = p => `<div class="p" id="p${p.i}"><div class="num">${p.n}</div><div class="dot">?</div><div class="info"><div class="name"></div><div class="yrs">${p.yrs}</div></div></div>`;
+grid.innerHTML = GROUPS.map(g => `<section class="grp"><h3>${g.title}</h3><div class="cards">${P.slice(g.start, g.start + g.count).map(card).join("")}</div></section>`).join("");
+const el = i => document.getElementById("p" + i);
+
+const input = document.getElementById("guess");
+const scoreEl = document.getElementById("score"), timerEl = document.getElementById("timer"), msgEl = document.getElementById("msg");
+let found = new Set(), minutes = 20, endAt = 0, tick = null, over = false, clearTimer = null, pending = null;
+const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
+
+document.querySelectorAll("#times button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#times button").forEach(x => x.classList.remove("sel"));
+  b.classList.add("sel"); minutes = +b.dataset.m; timerEl.textContent = fmt(minutes * 60000); showBest();
+});
+function getBest() { try { return JSON.parse(localStorage.getItem("bea-best") || "{}"); } catch (e) { return {}; } }
+function showBest() { const b = getBest()[minutes]; document.getElementById("best").textContent = b != null ? `Your best at ${minutes} min: ${b}/${total}` : ""; }
+showBest();
+
+function reset() {
+  found = new Set(); over = false; pending = null;
+  P.forEach(p => { const e = el(p.i); e.className = "p"; e.querySelector(".dot").textContent = "?"; e.querySelector(".name").textContent = ""; });
+  scoreEl.textContent = 0; msgEl.textContent = ""; input.value = ""; input.className = "";
+}
+function start() {
+  reset();
+  document.getElementById("startOv").classList.add("hidden");
+  document.getElementById("endOv").classList.add("hidden");
+  document.getElementById("giveUp").classList.remove("hidden");
+  document.getElementById("restart").classList.add("hidden");
+  input.disabled = false; input.focus();
+  endAt = Date.now() + minutes * 60000;
+  clearInterval(tick);
+  tick = setInterval(() => {
+    const left = endAt - Date.now();
+    timerEl.textContent = fmt(left);
+    timerEl.classList.toggle("low", left < 60000);
+    if (left <= 0) end(false);
+  }, 200);
+}
+function end(gaveUp) {
+  if (over) return;
+  over = true; clearInterval(tick); input.disabled = true; input.blur();
+  document.getElementById("giveUp").classList.add("hidden");
+  document.getElementById("restart").classList.remove("hidden");
+  const missed = P.filter(p => !found.has(p.i));
+  missed.forEach(p => { const e = el(p.i); e.classList.add("missed"); e.querySelector(".dot").textContent = "!"; e.querySelector(".name").textContent = p.name; });
+  const n = found.size;
+  document.getElementById("endTitle").textContent = n === total ? "You named them all! 🎉" : gaveUp ? "Game over" : "Time's up!";
+  document.getElementById("endScore").textContent = `${n} / ${total}`;
+  const used = fmt(minutes * 60000 - Math.max(0, endAt - Date.now()));
+  let sub = `${Math.round(n / total * 100)}% of the songs in ${used}.`;
+  const best = getBest();
+  if (best[minutes] == null || n > best[minutes]) { if (n > 0) sub += " New personal best!"; best[minutes] = n; try { localStorage.setItem("bea-best", JSON.stringify(best)); } catch (e) {} }
+  document.getElementById("endSub").textContent = sub;
+  document.getElementById("missedWrap").classList.toggle("hidden", !missed.length);
+  document.getElementById("missedList").innerHTML = [...new Set(missed.map(p => p.name))].map(n => `<li>${n}</li>`).join("");
+  document.getElementById("endOv").classList.remove("hidden");
+  if (window.QuizHS) QuizHS.ended(n, Math.max(1, Math.round((minutes * 60000 - Math.max(0, endAt - Date.now())) / 1000)), minutes);
+  msgEl.textContent = "Missed songs are shown in red";
+  showBest();
+}
+
+function fill(i) {
+  found.add(i);
+  const e = el(i);
+  e.classList.add("found", "pop"); setTimeout(() => e.classList.remove("pop"), 500);
+  e.querySelector(".dot").textContent = "✓";
+  e.querySelector(".name").textContent = P[i].name;
+}
+// Mark the oldest unfound presidency for this alias; a person who served twice fills both spots.
+function markFound(list) {
+  const i = list.find(j => !found.has(j));
+  const who = P[i].name;
+  P.forEach(p => { if (p.name === who && !found.has(p.i)) fill(p.i); });
+  scoreEl.textContent = found.size;
+  msgEl.textContent = "✓ " + who;
+  if (found.size === total) end(false);
+  return who;
+}
+const unfoundIn = list => list.some(j => !found.has(j));
+// True if a longer name that's still to find starts with n
+function leadsToUnfound(n) {
+  for (const [a, l] of aliasMap) if (a.length > n.length && a.startsWith(n) && unfoundIn(l)) return true;
+  return false;
+}
+// True if `who` has a longer way of writing it that starts with n ("Everything Everywhere" -> "...All at Once")
+const longerFor = (who, n) => P.some(p => p.name === who && p.alts.some(a => { a = norm(a); return a.length > n.length && a.startsWith(n); }));
+
+// Where a finished answer ends and the next one starts: the shortest answer at the
+// front of the box whose leftover letters could still become an answer.
+function afterAnswer(v) {
+  for (let k = 1; k <= v.length; k++) {
+    if (!aliasMap.has(norm(v.slice(0, k)))) continue;
+    const rest = v.slice(k).trimStart(), nr = norm(rest);
+    if (!nr || allNorms.some(a => a.startsWith(nr))) return rest;
+  }
+  return null;
+}
+
+input.addEventListener("input", () => {
+  clearTimeout(clearTimer);
+  input.className = "";
+  // A just-accepted answer may still be in the box; if the new letters don't lead to a longer
+  // name, drop the accepted part so the next answer can be typed straight on.
+  if (pending) {
+    if (!input.value.startsWith(pending.text)) pending = null;
+    else if (!allNorms.some(a => a.startsWith(norm(input.value)))) {
+      const rest = afterAnswer(input.value);
+      if (rest !== null) input.value = rest;
+      pending = null;
+    }
+  }
+  const n = norm(input.value);
+  if (!n) return;
+  const list = aliasMap.get(n);
+  if (!list) return;
+
+  if (!unfoundIn(list)) {
+    // Still typing out the answer that was just accepted: clear once it's complete, stay quiet meanwhile
+    if (pending && pending.who && list.some(j => P[j].name === pending.who)) {
+      if (!longerFor(pending.who, n) && !leadsToUnfound(n)) { input.value = ""; pending = null; }
+      return;
+    }
+    if (leadsToUnfound(n)) { pending = { text: input.value, who: null }; return; } // keep typing toward a longer name
+    input.className = "dup"; msgEl.textContent = "Already got " + (new Set(list.map(j => P[j].name)).size > 1 ? "every " + input.value.trim() : P[list[0]].name);
+    clearTimer = setTimeout(() => { input.value = ""; input.className = ""; pending = null; }, 700);
+    pending = { text: input.value, who: null }; // typing on past it drops it
+    return;
+  }
+
+  const who = markFound(list);
+  input.className = "ok";
+  if (leadsToUnfound(n) || longerFor(who, n)) {
+    pending = { text: input.value, who };
+  } else {
+    input.value = ""; pending = null;
+    setTimeout(() => { if (!input.value) input.className = ""; }, 250);
+  }
+});
+
+document.getElementById("startBtn").onclick = start;
+document.getElementById("again").onclick = () => { document.getElementById("endOv").classList.add("hidden"); document.getElementById("startOv").classList.remove("hidden"); };
+document.getElementById("restart").onclick = () => { reset(); document.getElementById("startOv").classList.remove("hidden"); timerEl.textContent = fmt(minutes * 60000); };
+document.getElementById("viewMap").onclick = () => document.getElementById("endOv").classList.add("hidden");
+document.getElementById("giveUp").onclick = () => end(true);
+timerEl.textContent = fmt(minutes * 60000);
+</script>
+<script src="/quiz/scoreboard.js"></script>
+<script>QuizHS.init("beatles-songs", total, () => minutes);</script>
+</body>
+</html>
